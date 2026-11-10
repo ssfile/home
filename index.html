@@ -883,14 +883,15 @@
 
         // --- GITHUB AUTO-DEPLOY SYNC FUNCTION ---
         async function syncToGitHub() {
-            const token = state.settings.githubToken;
-            const user = state.settings.githubUser;
-            const repo = state.settings.githubRepo;
-            const branch = state.settings.githubBranch || 'main';
-            const filePath = state.settings.githubFilePath || 'index.html';
+            const token = state.settings.githubToken ? state.settings.githubToken.trim() : '';
+            const user = state.settings.githubUser ? state.settings.githubUser.trim() : '';
+            const repo = state.settings.githubRepo ? state.settings.githubRepo.trim() : '';
+            const branch = state.settings.githubBranch ? state.settings.githubBranch.trim() : 'main';
+            const filePath = state.settings.githubFilePath ? state.settings.githubFilePath.trim() : 'index.html';
 
             if (!token || !user || !repo) {
-                return false; // GitHub sync not configured, skip silently
+                console.warn("GitHub sync skipped: missing credentials.");
+                return false; 
             }
 
             try {
@@ -900,7 +901,11 @@
                     stateStoreEl.textContent = JSON.stringify(state);
                 }
                 const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-                const base64Content = btoa(unescape(encodeURIComponent(htmlContent)));
+                
+                // Safe base64 encoding supporting UTF-8 characters
+                const base64Content = btoa(encodeURIComponent(htmlContent).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+                }));
 
                 const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${filePath}`;
                 
@@ -942,7 +947,7 @@
                     return true;
                 } else {
                     const errJson = await putResp.json();
-                    console.error("GitHub Auto-Deploy Error:", errJson.message);
+                    console.error("GitHub Auto-Deploy Error:", errJson.message || errJson);
                     return false;
                 }
             } catch (err) {
