@@ -139,7 +139,13 @@
             aboutBgColor: "#1e3a8a",
             footerBgColor: "#0f172a",
             footerTextColor: "#94a3b8",
-            footerIconColor: "#ffffff"
+            footerIconColor: "#ffffff",
+            // GitHub Auto-Deploy Config
+            githubToken: "",
+            githubUser: "",
+            githubRepo: "",
+            githubBranch: "main",
+            githubFilePath: "index.html"
         };
 
         const DEFAULT_ANNOUNCEMENTS = [
@@ -156,10 +162,6 @@
             {
                 image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=1200&q=80",
                 link: "https://wa.me/6281234567890?text=Halo%20saya%20mau%20konsultasi%20template%20pitch%20deck"
-            },
-            {
-                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=80",
-                link: "https://wa.me/6281234567890?text=Halo%20saya%20mau%20info%20diskon%20excel"
             }
         ];
 
@@ -802,11 +804,6 @@
             const localLiveSales = JSON.parse(localStorage.getItem('dm_live_sales'));
             const localAnnouncements = JSON.parse(localStorage.getItem('dm_announcements'));
 
-            try {
-                const localGithub = JSON.parse(localStorage.getItem('dm_github_config'));
-                if (localGithub) githubConfig = localGithub;
-            } catch(e) {}
-
             if (injectedState && injectedState.settings) {
                 state = injectedState;
             } else {
@@ -855,7 +852,6 @@
         let announcementIndex = 0;
         let announcementTimer = null;
         let settingsActiveTab = 'general';
-        let githubConfig = { owner: '', repo: '', token: '', branch: 'main' };
 
         function navigate(view, id = null) {
             currentView = view;
@@ -883,6 +879,76 @@
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        // --- GITHUB AUTO-DEPLOY SYNC FUNCTION ---
+        async function syncToGitHub() {
+            const token = state.settings.githubToken;
+            const user = state.settings.githubUser;
+            const repo = state.settings.githubRepo;
+            const branch = state.settings.githubBranch || 'main';
+            const filePath = state.settings.githubFilePath || 'index.html';
+
+            if (!token || !user || !repo) {
+                return false; // GitHub sync not configured, skip silently
+            }
+
+            try {
+                // 1. Prepare current HTML content
+                const stateStoreEl = document.getElementById('app-state-store');
+                if (stateStoreEl) {
+                    stateStoreEl.textContent = JSON.stringify(state);
+                }
+                const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+                const base64Content = btoa(unescape(encodeURIComponent(htmlContent)));
+
+                const apiUrl = `https://api.github.com/repos/${user}/${repo}/contents/${filePath}`;
+                
+                // 2. Get existing file SHA if it exists
+                let sha = null;
+                const getResp = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                if (getResp.ok) {
+                    const fileData = await getResp.json();
+                    sha = fileData.sha;
+                }
+
+                // 3. Commit / Update file on GitHub
+                const bodyData = {
+                    message: `Auto-deploy update via Admin Panel (${new Date().toLocaleString()})`,
+                    content: base64Content,
+                    branch: branch
+                };
+                if (sha) {
+                    bodyData.sha = sha;
+                }
+
+                const putResp = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bodyData)
+                });
+
+                if (putResp.ok) {
+                    console.log("GitHub Auto-Deploy Success!");
+                    return true;
+                } else {
+                    const errJson = await putResp.json();
+                    console.error("GitHub Auto-Deploy Error:", errJson.message);
+                    return false;
+                }
+            } catch (err) {
+                console.error("GitHub Auto-Deploy Exception:", err);
+                return false;
+            }
         }
 
         function formatRupiah(num) {
@@ -929,7 +995,7 @@
                     currentBannerIndex = (currentBannerIndex + 1) % state.banners.length;
                     const track = document.getElementById('banner-slider-track');
                     if(track) {
-                        track.style.transform = `translateX(-${currentBannerIndex * (100 / state.banners.length)}%)`;
+                        track.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
                         updateBannerDots();
                     }
                 }
@@ -1226,6 +1292,11 @@
                             ${state.banners.map((b, idx) => `
                                 <div class="w-full h-full flex-shrink-0 relative cursor-pointer" style="width: calc(100% / ${state.banners.length});" onclick="window.open('${b.link}', '_blank')">
                                     <img src="${b.image}" alt="Banner Iklan ${idx+1}" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
+                                        <span class="px-3 py-1 bg-white/20 backdrop-blur-md rounded-xl text-white text-xs font-bold border border-white/30 inline-flex items-center gap-1.5">
+                                            <i class="ph ph-arrow-square-out text-sm"></i> Klik Banner untuk Info / Order
+                                        </span>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
@@ -1398,12 +1469,12 @@
                                         <div class="rounded-3xl p-4 sm:p-5 border border-slate-100/85 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative" style="background-color: ${cardBg};">
                                             <div>
                                                 <div class="relative rounded-2xl overflow-hidden aspect-[16/9] mb-3 bg-slate-100 cursor-pointer w-full" onclick="navigate('product', '${p.id}')">
-                                                    <img src="${p.cover}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=SS+File'">
+                                                    <img src="${p.cover}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x400/e2e8f0/64748b?text=DocMarket'">
                                                     <span class="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-lg text-[10px] font-bold uppercase text-slate-800 tracking-wider shadow-sm">
                                                         .${p.format}
                                                     </span>
                                                     ${discountPercent > 0 ? `
-                                                        <span class="absolute bottom-3 left-3 px-3.5 py-2 bg-red-600 text-white rounded-xl text-sm font-black shadow-xl tracking-wide">
+                                                        <span class="absolute bottom-3 left-3 px-2 py-1 bg-red-500 text-white rounded-lg text-[11px] font-extrabold shadow-md tracking-wide">
                                                             -${discountPercent}%
                                                         </span>
                                                     ` : ''}
@@ -1412,8 +1483,7 @@
                                                     <span class="text-[10px] font-bold text-blue-600 uppercase tracking-wider" style="color: ${state.settings.iconColor}">${p.category}</span>
                                                     ${p.pagesCount ? `<span class="text-[10px] font-semibold text-slate-400 bg-white/80 px-2 py-0.5 rounded-md border border-slate-100">${p.pagesCount}</span>` : ''}
                                                 </div>
-                                                <h3 class="font-bold text-slate-800 text-sm sm:text-base line-clamp-1 mb-1 group-hover:text-blue-600 transition-colors cursor-pointer" onclick="navigate('product', '${p.id}')">${p.title}</h3>
-                                                <p class="text-xs text-slate-500 line-clamp-2 mb-3 leading-relaxed">${p.desc || ''}</p>
+                                                <h3 class="font-bold text-slate-800 text-sm sm:text-base line-clamp-2 mb-3 group-hover:text-blue-600 transition-colors cursor-pointer" onclick="navigate('product', '${p.id}')">${p.title}</h3>
                                             </div>
 
                                             <div class="pt-3 border-t border-slate-100 flex flex-col gap-2 mt-auto">
@@ -1875,12 +1945,6 @@ ${visibleProductCount < filtered.length ? `
 
         // --- POLISHED SETTINGS FULL PAGE ---
         function renderSettingsFull() {
-            // Failsafes to prevent render crashes if data is missing
-            const productsCount = state.products ? state.products.length : 0;
-            const annCount = state.announcements ? state.announcements.length : 0;
-            const bannerCount = state.banners ? state.banners.length : 0;
-            const salesCount = state.liveSales ? state.liveSales.length : 0;
-
             return `
                 <div class="min-h-screen pt-28 pb-20 px-4 sm:px-6 md:px-12 bg-slate-50">
                     <div class="max-w-7xl mx-auto">
@@ -1889,12 +1953,12 @@ ${visibleProductCount < filtered.length ? `
                                 <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Dashboard Pengaturan Admin</h1>
                                 <p class="text-xs sm:text-sm text-slate-500">Kelola pengumuman, banner iklan, popup live sales, produk, galeri, dan konfigurasi situs.</p>
                             </div>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <button onclick="downloadBackup()" class="flex items-center gap-2 px-5 py-3 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 rounded-2xl font-bold text-xs shadow-sm transition-all flex-shrink-0">
-                                    <i class="ph ph-download-simple text-lg"></i> Backup Manual
+                            <div class="flex items-center gap-3 flex-shrink-0">
+                                <button onclick="triggerManualGitHubSync()" class="flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-xs shadow-lg shadow-blue-100 transition-all" style="background-color: ${state.settings.iconColor}">
+                                    <i class="ph ph-git-commit text-lg"></i> Sync ke GitHub
                                 </button>
-                                <button onclick="syncToGitHub()" class="flex items-center gap-2 px-5 py-3 bg-slate-900 hover:bg-black text-white rounded-2xl font-bold text-xs shadow-lg shadow-slate-200 transition-all flex-shrink-0">
-                                    <i class="ph ph-github-logo text-lg"></i> Deploy ke GitHub
+                                <button onclick="downloadBackup()" class="flex items-center gap-2 px-5 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-xs shadow-lg shadow-emerald-100 transition-all">
+                                    <i class="ph ph-download-simple text-lg"></i> Backup index.html
                                 </button>
                             </div>
                         </div>
@@ -1908,25 +1972,25 @@ ${visibleProductCount < filtered.length ? `
                                         <i class="ph ph-globe text-lg"></i> Identitas & Hero
                                     </button>
                                     <button onclick="settingsActiveTab = 'products-crud'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'products-crud' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'products-crud' ? 'background-color: '+state.settings.iconColor : ''}">
-                                        <i class="ph ph-package text-lg"></i> Manajemen Produk (${productsCount})
+                                        <i class="ph ph-package text-lg"></i> Manajemen Produk (${state.products.length})
                                     </button>
                                     <button onclick="settingsActiveTab = 'announcements'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'announcements' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'announcements' ? 'background-color: '+state.settings.iconColor : ''}">
-                                        <i class="ph ph-megaphone text-lg"></i> Pengumuman (${annCount})
+                                        <i class="ph ph-megaphone text-lg"></i> Pengumuman (${state.announcements.length})
                                     </button>
                                     <button onclick="settingsActiveTab = 'banners'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'banners' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'banners' ? 'background-color: '+state.settings.iconColor : ''}">
-                                        <i class="ph ph-image text-lg"></i> Banner Iklan (${bannerCount})
+                                        <i class="ph ph-image text-lg"></i> Banner Iklan (${state.banners.length})
                                     </button>
                                     <button onclick="settingsActiveTab = 'sales'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'sales' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'sales' ? 'background-color: '+state.settings.iconColor : ''}">
-                                        <i class="ph ph-shopping-bag text-lg"></i> Live Sales Toast (${salesCount})
+                                        <i class="ph ph-shopping-bag text-lg"></i> Live Sales Toast (${state.liveSales.length})
                                     </button>
                                     <button onclick="settingsActiveTab = 'content'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'content' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'content' ? 'background-color: '+state.settings.iconColor : ''}">
                                         <i class="ph ph-star text-lg"></i> Testimoni, FAQ & Galeri
                                     </button>
+                                    <button onclick="settingsActiveTab = 'github'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'github' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'github' ? 'background-color: '+state.settings.iconColor : ''}">
+                                        <i class="ph ph-git-branch text-lg"></i> GitHub Auto-Deploy
+                                    </button>
                                     <button onclick="settingsActiveTab = 'admin'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'admin' ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}" style="${settingsActiveTab === 'admin' ? 'background-color: '+state.settings.iconColor : ''}">
                                         <i class="ph ph-shield-check text-lg"></i> Keamanan & Akun
-                                    </button>
-                                    <button onclick="settingsActiveTab = 'github'; render();" class="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs sm:text-sm transition-all text-left ${settingsActiveTab === 'github' ? 'bg-slate-900 text-white shadow-md' : 'hover:bg-slate-50 text-slate-700'}">
-                                        <i class="ph ph-github-logo text-lg"></i> Integrasi Auto-Sync
                                     </button>
                                 </div>
                             </div>
@@ -2045,77 +2109,49 @@ ${visibleProductCount < filtered.length ? `
 
                             ${settingsActiveTab === 'products-crud' ? `
                                 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                                         <div>
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-package text-blue-600" style="color: ${state.settings.iconColor}"></i> Modul Manajemen Produk (CRUD)
-                                            </h3>
-                                            <p class="text-xs text-slate-500">Tambah, Edit, Hapus, dan Lihat Detail Produk secara langsung di Admin Panel.</p>
+                                            <h3 class="font-bold text-lg text-slate-800">Manajemen Produk Katalog</h3>
+                                            <p class="text-xs text-slate-500">Tambah, edit, atau hapus produk langsung dari panel admin.</p>
                                         </div>
-                                        <button onclick="navigate('edit-product')" class="px-4 py-2.5 bg-blue-600 text-white font-bold text-xs rounded-xl transition-all shadow-md flex items-center gap-1.5" style="background-color: ${state.settings.iconColor}">
+                                        <button onclick="navigate('edit-product')" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5" style="background-color: ${state.settings.iconColor}">
                                             <i class="ph ph-plus text-base font-bold"></i> Tambah Produk Baru
                                         </button>
                                     </div>
-
-                                    <div class="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-                                        ${(state.products || []).map(p => {
-                                            const title = p.title || 'Untitled';
-                                            const waMsg = encodeURIComponent(`Halo Admin, saya tertarik untuk membeli file "${title}" (${formatRupiah(p.priceDiscount || 0)}). Mohon info pembayarannya.`);
-                                            const waUrl = `https://wa.me/${state.settings.whatsappContact || ''}?text=${waMsg}`;
-
-                                            return `
-                                                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50 gap-4">
-                                                    <div class="flex items-center gap-3">
-                                                        <div class="w-14 h-14 rounded-xl overflow-hidden bg-slate-200 flex-shrink-0 border border-slate-200">
-                                                            <img src="${p.cover || ''}" class="w-full h-full object-cover">
-                                                        </div>
-                                                        <div>
-                                                            <div class="flex items-center gap-2 mb-1">
-                                                                <span class="px-2 py-0.5 bg-blue-50 text-blue-700 font-bold text-[9px] uppercase rounded" style="color:${state.settings.iconColor}">${p.category || 'Umum'}</span>
-                                                                <span class="px-2 py-0.5 bg-slate-200 text-slate-700 font-bold text-[9px] rounded">.${p.format || 'file'}</span>
-                                                            </div>
-                                                            <h4 class="font-bold text-sm text-slate-800 line-clamp-1">${title}</h4>
-                                                            <span class="text-xs font-extrabold text-blue-600" style="color:${state.settings.iconColor}">${formatRupiah(p.priceDiscount || 0)}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 flex-shrink-0 self-end sm:self-auto">
-                                                        <button onclick="navigate('product', '${p.id}')" class="px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl font-bold text-xs border border-slate-200 flex items-center gap-1" title="Lihat Detail">
-                                                            <i class="ph ph-eye"></i> Detail
-                                                        </button>
-                                                        <a href="${waUrl}" target="_blank" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1" title="Beli via WhatsApp">
-                                                            <i class="ph ph-whatsapp-logo"></i> WhatsApp
-                                                        </a>
-                                                        <button onclick="navigate('edit-product', '${p.id}')" class="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl font-bold text-xs flex items-center gap-1" style="color:${state.settings.iconColor}" title="Edit Produk">
-                                                            <i class="ph ph-pencil-simple"></i> Edit
-                                                        </button>
-                                                        <button onclick="deleteProduct('${p.id}'); settingsActiveTab='products-crud'; render();" class="p-2.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl" title="Hapus Produk">
-                                                            <i class="ph ph-trash text-sm"></i>
-                                                        </button>
+                                    <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                                        ${state.products.map(p => `
+                                            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 gap-4">
+                                                <div class="flex items-center gap-3">
+                                                    <img src="${p.cover}" class="w-12 h-12 rounded-xl object-cover flex-shrink-0">
+                                                    <div>
+                                                        <h4 class="font-bold text-slate-800 text-xs line-clamp-1">${p.title}</h4>
+                                                        <span class="text-[10px] text-slate-400 font-medium">${p.category} | ${formatRupiah(p.priceDiscount)}</span>
                                                     </div>
                                                 </div>
-                                            `;
-                                        }).join('')}
+                                                <div class="flex items-center gap-2 flex-shrink-0">
+                                                    <button onclick="navigate('edit-product', '${p.id}')" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-xl font-bold text-xs hover:bg-blue-100 transition-all" style="color: ${state.settings.iconColor}">Edit</button>
+                                                    <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 rounded-xl font-bold text-xs hover:bg-red-100 transition-all">Hapus</button>
+                                                </div>
+                                            </div>
+                                        `).join('')}
                                     </div>
                                 </div>
                             ` : ''}
 
                             ${settingsActiveTab === 'announcements' ? `
                                 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                                         <div>
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-megaphone text-blue-600" style="color: ${state.settings.iconColor}"></i> Kelola Pengumuman Promo (Top Ticker)
-                                            </h3>
-                                            <p class="text-xs text-slate-500">Teks pengumuman berjalan/slide di bawah header dan di atas hero banner.</p>
+                                            <h3 class="font-bold text-lg text-slate-800">Manajemen Pengumuman Berjalan</h3>
+                                            <p class="text-xs text-slate-500">Atur teks berjalan di bagian atas website.</p>
                                         </div>
-                                        <button onclick="openAddAnnouncementModal()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition-all" style="color: ${state.settings.iconColor}">+ Tambah Pengumuman</button>
+                                        <button onclick="openAddAnnouncementModal()" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-md" style="background-color: ${state.settings.iconColor}">Tambah Pengumuman</button>
                                     </div>
-
                                     <div class="space-y-3">
-                                        ${(state.announcements || []).map((ann, idx) => `
-                                            <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50 gap-4">
-                                                <input type="text" id="edit-ann-${idx}" value="${ann}" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs text-slate-800 font-medium" onchange="updateAnnouncementItem(${idx}, this.value)">
-                                                <button onclick="deleteAnnouncement(${idx})" class="p-2.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl flex-shrink-0"><i class="ph ph-trash text-sm"></i></button>
+                                        ${state.announcements.map((ann, idx) => `
+                                            <div class="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                                                <input type="text" value="${ann}" oninput="updateAnnouncementItem(${idx}, this.value)" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs">
+                                                <button onclick="deleteAnnouncement(${idx})" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 flex-shrink-0"><i class="ph ph-trash text-sm"></i></button>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -2124,37 +2160,24 @@ ${visibleProductCount < filtered.length ? `
 
                             ${settingsActiveTab === 'banners' ? `
                                 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                                         <div>
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-image text-blue-600" style="color: ${state.settings.iconColor}"></i> Kelola Banner Iklan & Link
-                                            </h3>
-                                            <p class="text-xs text-slate-500">Banner akan bergeser otomatis setiap 4 detik. Ubah link atau ganti gambar banner.</p>
+                                            <h3 class="font-bold text-lg text-slate-800">Manajemen Banner Iklan Slider</h3>
+                                            <p class="text-xs text-slate-500">Kelola gambar banner promosi dan tautannya.</p>
                                         </div>
-                                        <button onclick="openAddBannerModal()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition-all" style="color: ${state.settings.iconColor}">+ Tambah Banner</button>
+                                        <button onclick="openAddBannerModal()" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-md" style="background-color: ${state.settings.iconColor}">Tambah Banner</button>
                                     </div>
-
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        ${(state.banners || []).map((b, idx) => `
-                                            <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex flex-col justify-between gap-3">
-                                                <div class="aspect-[21/9] rounded-xl overflow-hidden bg-slate-200 relative group">
-                                                    <img src="${b.image}" class="w-full h-full object-cover">
-                                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <label class="cursor-pointer px-3 py-1.5 bg-white text-slate-800 font-bold text-xs rounded-lg shadow-md hover:bg-slate-100">
-                                                            Ganti Gambar
-                                                            <input type="file" accept="image/*" class="hidden" onchange="updateBannerImage(event, ${idx})">
-                                                        </label>
-                                                    </div>
+                                    <div class="space-y-4">
+                                        ${state.banners.map((b, idx) => `
+                                            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col sm:flex-row items-center gap-4">
+                                                <img src="${b.image}" class="w-28 h-14 rounded-xl object-cover flex-shrink-0">
+                                                <div class="flex-grow space-y-2 w-full">
+                                                    <label class="block text-[10px] font-bold text-slate-500">Ganti Gambar Banner</label>
+                                                    <input type="file" accept="image/*" onchange="updateBannerImage(event, ${idx})" class="w-full text-xs text-slate-500">
+                                                    <label class="block text-[10px] font-bold text-slate-500">Link Tujuan Banner</label>
+                                                    <input type="text" value="${b.link}" oninput="updateBannerLink(${idx}, this.value)" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs">
                                                 </div>
-                                                <div>
-                                                    <span class="text-[10px] font-bold text-slate-400 block mb-1">Link Tujuan URL / WhatsApp:</span>
-                                                    <input type="text" value="${b.link || ''}" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs text-slate-800 font-medium" onchange="updateBannerLink(${idx}, this.value)">
-                                                </div>
-                                                <div class="flex justify-end pt-2 border-t border-slate-200">
-                                                    <button onclick="deleteBanner(${idx})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs font-bold flex items-center gap-1">
-                                                        <i class="ph ph-trash"></i> Hapus Banner
-                                                    </button>
-                                                </div>
+                                                <button onclick="deleteBanner(${idx})" class="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 flex-shrink-0"><i class="ph ph-trash text-base"></i></button>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -2163,24 +2186,21 @@ ${visibleProductCount < filtered.length ? `
 
                             ${settingsActiveTab === 'sales' ? `
                                 <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
-                                    <div class="flex items-center justify-between">
+                                    <div class="flex items-center justify-between pb-4 border-b border-slate-100">
                                         <div>
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-shopping-bag text-blue-600" style="color: ${state.settings.iconColor}"></i> Kelola Isi Popup Live Sales Toast
-                                            </h3>
-                                            <p class="text-xs text-slate-500">Notifikasi pembeli fiktif/nyata yang muncul secara berkala di sudut kiri bawah.</p>
+                                            <h3 class="font-bold text-lg text-slate-800">Manajemen Live Sales Toast</h3>
+                                            <p class="text-xs text-slate-500">Kelola pop-up notifikasi pembelian real-time.</p>
                                         </div>
-                                        <button onclick="openAddLiveSaleModal()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition-all" style="color: ${state.settings.iconColor}">+ Tambah Live Sale</button>
+                                        <button onclick="openAddLiveSaleModal()" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-md" style="background-color: ${state.settings.iconColor}">Tambah Live Sale</button>
                                     </div>
-
                                     <div class="space-y-3">
-                                        ${(state.liveSales || []).map((s, idx) => `
-                                            <div class="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-slate-50">
+                                        ${state.liveSales.map((s, idx) => `
+                                            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 gap-4">
                                                 <div>
-                                                    <h5 class="font-bold text-sm text-slate-800">${s.name || ''} <span class="font-normal text-slate-500 text-xs">dari ${s.city || ''}</span></h5>
-                                                    <p class="text-xs text-blue-600 font-semibold mt-0.5" style="color:${state.settings.iconColor}">Membeli: ${s.item || ''}</p>
+                                                    <h4 class="font-bold text-slate-800 text-xs">${s.name} (${s.city})</h4>
+                                                    <span class="text-[10px] text-slate-500 font-medium">Membeli: ${s.item}</span>
                                                 </div>
-                                                <button onclick="deleteLiveSale(${idx})" class="p-2 bg-red-50 hover:bg-red-100 text-red-500 rounded-lg"><i class="ph ph-trash text-sm"></i></button>
+                                                <button onclick="deleteLiveSale(${idx})" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100"><i class="ph ph-trash text-sm"></i></button>
                                             </div>
                                         `).join('')}
                                     </div>
@@ -2188,127 +2208,102 @@ ${visibleProductCount < filtered.length ? `
                             ` : ''}
 
                             ${settingsActiveTab === 'content' ? `
-                                <div class="space-y-6">
-                                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-                                        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                                            <i class="ph ph-user-circle text-blue-600" style="color: ${state.settings.iconColor}"></i> Halaman Tentang Kami (About Me) & Warna Background
-                                        </h3>
-                                        <div class="space-y-4">
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-700 mb-1">Judul Halaman About</label>
-                                                <input type="text" id="set-aboutTitle" value="${state.settings.aboutTitle}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-700 mb-1">Warna Background Kotak About Me</label>
-                                                <input type="color" id="set-aboutBgColor" value="${state.settings.aboutBgColor || '#1e3a8a'}" class="w-full h-10 rounded-xl cursor-pointer p-1 bg-white border border-slate-200">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-700 mb-1">Foto Profil / About (Upload Gambar)</label>
-                                                <input type="file" id="set-aboutPhotoFile" accept="image/*" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-600">
-                                                <input type="hidden" id="set-aboutPhotoExisting" value="${state.settings.aboutPhoto}">
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-700 mb-1">Deskripsi Lengkap</label>
-                                                <textarea id="set-aboutDesc" rows="4" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">${state.settings.aboutDesc}</textarea>
-                                            </div>
-                                            <div>
-                                                <label class="block text-xs font-bold text-slate-700 mb-1">Kontak & Informasi</label>
-                                                <input type="text" id="set-aboutContact" value="${state.settings.aboutContact}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
-                                            </div>
+                                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-8">
+                                    <!-- Testimonials -->
+                                    <div>
+                                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                                            <h3 class="font-bold text-base text-slate-800">Manajemen Testimoni Klien</h3>
+                                            <button onclick="openTestiModal()" class="px-3.5 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-sm" style="background-color: ${state.settings.iconColor}">Tambah Testimoni</button>
                                         </div>
-                                    </div>
-
-                                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-                                        <h3 class="font-bold text-lg text-slate-800 mb-4 flex items-center gap-2">
-                                            <i class="ph ph-squares-four text-blue-600" style="color: ${state.settings.iconColor}"></i> Warna Background Kotak Produk
-                                        </h3>
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 mb-1">Warna Background Card / Kotak Produk di Beranda</label>
-                                            <input type="color" id="set-productCardBg" value="${state.settings.productCardBg || '#ffffff'}" class="w-full h-10 rounded-xl cursor-pointer p-1 bg-white border border-slate-200">
-                                        </div>
-                                    </div>
-
-                                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-star text-amber-500"></i> Kelola Testimoni Klien
-                                            </h3>
-                                            <button onclick="openTestiModal()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition-all" style="color: ${state.settings.iconColor}">+ Tambah Testimoni</button>
-                                        </div>
-                                        <div class="space-y-4">
-                                            ${(state.testimonials || []).map((t, idx) => `
-                                                <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50 space-y-3">
-                                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        <div>
-                                                            <label class="block text-[10px] font-bold text-slate-400 mb-1">Nama Klien</label>
-                                                            <input type="text" value="${t.name || ''}" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-800" onchange="updateTestiField(${idx}, 'name', this.value)">
-                                                        </div>
-                                                        <div>
-                                                            <label class="block text-[10px] font-bold text-slate-400 mb-1">Rating Bintang (1-5)</label>
-                                                            <input type="number" min="1" max="5" value="${t.rating || 5}" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-800" onchange="updateTestiField(${idx}, 'rating', parseInt(this.value))">
-                                                        </div>
+                                        <div class="space-y-3">
+                                            ${state.testimonials.map((t, idx) => `
+                                                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="text" value="${t.name}" oninput="updateTestiField(${idx}, 'name', this.value)" class="w-1/2 px-3 py-1.5 bg-white rounded-xl border border-slate-200 text-xs font-bold">
+                                                        <input type="number" min="1" max="5" value="${t.rating}" oninput="updateTestiField(${idx}, 'rating', parseInt(this.value))" class="w-1/4 px-3 py-1.5 bg-white rounded-xl border border-slate-200 text-xs">
+                                                        <button onclick="deleteTestiSetting(${idx})" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 ml-auto"><i class="ph ph-trash text-sm"></i></button>
                                                     </div>
-                                                    <div>
-                                                        <label class="block text-[10px] font-bold text-slate-400 mb-1">Isi Testimoni</label>
-                                                        <textarea rows="2" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs text-slate-700" onchange="updateTestiField(${idx}, 'content', this.value)">${t.content || ''}</textarea>
-                                                    </div>
-                                                    <div class="flex justify-end">
-                                                        <button onclick="deleteTestiSetting(${idx})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-bold flex items-center gap-1"><i class="ph ph-trash"></i> Hapus Testimoni</button>
-                                                    </div>
+                                                    <textarea rows="2" oninput="updateTestiField(${idx}, 'content', this.value)" class="w-full px-3 py-1.5 bg-white rounded-xl border border-slate-200 text-xs">${t.content}</textarea>
                                                 </div>
                                             `).join('')}
                                         </div>
                                     </div>
 
-                                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-receipt text-emerald-600"></i> Galeri Bukti Transaksi
-                                            </h3>
-                                            <div>
-                                                <input type="file" id="proofsUploadInput" accept="image/*" multiple class="hidden" onchange="handleProofsUpload(event)">
-                                                <button onclick="document.getElementById('proofsUploadInput').click()" class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 font-bold text-xs rounded-xl transition-all">
-                                                    + Upload Bukti Transaksi
-                                                </button>
-                                            </div>
+                                    <!-- FAQ -->
+                                    <div class="pt-6 border-t border-slate-100">
+                                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                                            <h3 class="font-bold text-base text-slate-800">Manajemen FAQ (Pusat Bantuan)</h3>
+                                            <button onclick="openFaqModal()" class="px-3.5 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-sm" style="background-color: ${state.settings.iconColor}">Tambah FAQ</button>
+                                        </div>
+                                        <div class="space-y-3">
+                                            ${state.faqs.map((f, idx) => `
+                                                <div class="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <input type="text" value="${f.q}" oninput="updateFaqField(${idx}, 'q', this.value)" class="w-full px-3 py-1.5 bg-white rounded-xl border border-slate-200 text-xs font-bold">
+                                                        <button onclick="deleteFaqSetting(${idx})" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 flex-shrink-0"><i class="ph ph-trash text-sm"></i></button>
+                                                    </div>
+                                                    <textarea rows="2" oninput="updateFaqField(${idx}, 'a', this.value)" class="w-full px-3 py-1.5 bg-white rounded-xl border border-slate-200 text-xs">${f.a}</textarea>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+
+                                    <!-- Payment Proofs Gallery -->
+                                    <div class="pt-6 border-t border-slate-100">
+                                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
+                                            <h3 class="font-bold text-base text-slate-800">Manajemen Galeri Transaksi (Payment Proofs)</h3>
+                                            <label class="px-3.5 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs shadow-sm cursor-pointer" style="background-color: ${state.settings.iconColor}">
+                                                Upload Bukti Baru <input type="file" accept="image/*" multiple onchange="handleProofsUpload(event)" class="hidden">
+                                            </label>
                                         </div>
                                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                            ${(state.paymentProofs || []).map((img, idx) => `
-                                                <div class="relative rounded-2xl overflow-hidden aspect-[3/4] border border-slate-200 group bg-slate-50">
-                                                    <img src="${img}" class="w-full h-full object-cover">
-                                                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <button onclick="deleteProof(${idx})" class="p-2.5 bg-red-600 text-white rounded-xl shadow-lg hover:scale-110 transition-all">
-                                                            <i class="ph ph-trash text-base"></i>
-                                                        </button>
-                                                    </div>
+                                            ${state.paymentProofs.map((imgUrl, idx) => `
+                                                <div class="relative rounded-xl overflow-hidden border border-slate-200 aspect-[3/4] bg-white group">
+                                                    <img src="${imgUrl}" class="w-full h-full object-cover">
+                                                    <button onclick="deleteProof(${idx})" class="absolute top-2 right-2 w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center shadow-md"><i class="ph ph-trash text-xs"></i></button>
                                                 </div>
                                             `).join('')}
                                         </div>
                                     </div>
+                                </div>
+                            ` : ''}
 
-                                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
-                                                <i class="ph ph-question text-blue-600" style="color: ${state.settings.iconColor}"></i> Kelola FAQ
-                                            </h3>
-                                            <button onclick="openFaqModal()" class="px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-xs rounded-xl transition-all" style="color: ${state.settings.iconColor}">+ Tambah FAQ</button>
+                            ${settingsActiveTab === 'github' ? `
+                                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
+                                    <div class="flex items-center gap-3 pb-4 border-b border-slate-100">
+                                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl" style="color:${state.settings.iconColor}">
+                                            <i class="ph ph-git-branch"></i>
                                         </div>
-                                        <div class="space-y-4">
-                                            ${(state.faqs || []).map((f, idx) => `
-                                                <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50 space-y-3">
-                                                    <div>
-                                                        <label class="block text-[10px] font-bold text-slate-400 mb-1">Pertanyaan</label>
-                                                        <input type="text" value="${f.q || ''}" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs font-bold text-slate-800" onchange="updateFaqField(${idx}, 'q', this.value)">
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-[10px] font-bold text-slate-400 mb-1">Jawaban</label>
-                                                        <textarea rows="2" class="w-full px-3 py-2 bg-white rounded-xl border border-slate-200 text-xs text-slate-700" onchange="updateFaqField(${idx}, 'a', this.value)">${f.a || ''}</textarea>
-                                                    </div>
-                                                    <div class="flex justify-end">
-                                                        <button onclick="deleteFaqSetting(${idx})" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl text-xs font-bold flex items-center gap-1"><i class="ph ph-trash"></i> Hapus FAQ</button>
-                                                    </div>
-                                                </div>
-                                            `).join('')}
+                                        <div>
+                                            <h3 class="font-bold text-lg text-slate-800">GitHub Auto-Deploy & Sync</h3>
+                                            <p class="text-xs text-slate-500">Konfigurasikan repository GitHub Anda agar setiap perubahan langsung ter-push otomatis.</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-xs font-bold text-slate-700 mb-1">GitHub Personal Access Token (PAT)</label>
+                                            <input type="password" id="set-githubToken" value="${state.settings.githubToken || ''}" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxx" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-mono">
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Username / Organization GitHub</label>
+                                                <input type="text" id="set-githubUser" value="${state.settings.githubUser || ''}" placeholder="usernameanda" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Repository</label>
+                                                <input type="text" id="set-githubRepo" value="${state.settings.githubRepo || ''}" placeholder="namarepo" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Branch (Cabang)</label>
+                                                <input type="text" id="set-githubBranch" value="${state.settings.githubBranch || 'main'}" placeholder="main" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-bold text-slate-700 mb-1">Path File di Repo</label>
+                                                <input type="text" id="set-githubFilePath" value="${state.settings.githubFilePath || 'index.html'}" placeholder="index.html" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2328,46 +2323,6 @@ ${visibleProductCount < filtered.length ? `
                                             <label class="block text-xs font-bold text-slate-700 mb-1">Password Admin Baru</label>
                                             <input type="text" id="set-adminPass" value="${state.settings.adminPass}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
                                         </div>
-                                    </div>
-                                </div>
-                            ` : ''}
-                            
-                            ${settingsActiveTab === 'github' ? `
-                                <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-100 space-y-6">
-                                    <div>
-                                        <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2 mb-2">
-                                            <i class="ph ph-github-logo text-slate-900"></i> Integrasi Auto-Deploy GitHub
-                                        </h3>
-                                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
-                                            Fitur ini memungkinkan Anda menyimpan perubahan yang dilakukan di panel admin langsung ke repositori GitHub Anda tanpa perlu repot mengunduh file secara manual. <br><br>
-                                            <strong class="text-red-500"><i class="ph ph-warning"></i> Keamanan:</strong> Token GitHub hanya akan disimpan <b>lokal di browser perangkat Anda</b> dan tidak akan disematkan ke dalam kode publik.
-                                        </p>
-                                    </div>
-
-                                    <div class="space-y-4">
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 mb-1">GitHub Username / Owner (Misal: ryanhendra)</label>
-                                            <input type="text" id="gh-owner" value="${githubConfig?.owner || ''}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Repository (Misal: store-website)</label>
-                                            <input type="text" id="gh-repo" value="${githubConfig?.repo || ''}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Branch (Default: main / master)</label>
-                                            <input type="text" id="gh-branch" value="${githubConfig?.branch || 'main'}" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm">
-                                        </div>
-                                        <div>
-                                            <label class="block text-xs font-bold text-slate-700 mb-1">Personal Access Token (PAT) - Classic / Fine-grained (Wajib ada akses 'repo')</label>
-                                            <input type="password" id="gh-token" value="${githubConfig?.token || ''}" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-mono">
-                                            <p class="text-[10px] text-slate-400 mt-1">Dapatkan token di: GitHub Settings > Developer Settings > Personal Access Tokens.</p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="pt-4 border-t border-slate-100 flex justify-end">
-                                        <button onclick="saveGithubConfig()" class="px-6 py-3 bg-slate-900 hover:bg-black text-white rounded-xl font-bold text-sm shadow-md transition-all">
-                                            Simpan Konfigurasi GitHub
-                                        </button>
                                     </div>
                                 </div>
                             ` : ''}
@@ -2605,6 +2560,12 @@ ${visibleProductCount < filtered.length ? `
             state.settings.aboutDesc = getVal('set-aboutDesc', state.settings.aboutDesc);
             state.settings.aboutContact = getVal('set-aboutContact', state.settings.aboutContact);
 
+            state.settings.githubToken = getVal('set-githubToken', state.settings.githubToken);
+            state.settings.githubUser = getVal('set-githubUser', state.settings.githubUser);
+            state.settings.githubRepo = getVal('set-githubRepo', state.settings.githubRepo);
+            state.settings.githubBranch = getVal('set-githubBranch', state.settings.githubBranch);
+            state.settings.githubFilePath = getVal('set-githubFilePath', state.settings.githubFilePath);
+
             const logoInput = document.getElementById('set-logo');
             if (logoInput && logoInput.files[0]) {
                 state.settings.logoUrl = await toBase64(logoInput.files[0]);
@@ -2616,8 +2577,35 @@ ${visibleProductCount < filtered.length ? `
             }
 
             saveState();
-            showAlert("Berhasil", "Pengaturan berhasil disimpan!");
+
+            // Trigger GitHub auto-deploy if credentials are set
+            let syncMsg = "Pengaturan berhasil disimpan!";
+            if (state.settings.githubToken && state.settings.githubUser && state.settings.githubRepo) {
+                const success = await syncToGitHub();
+                if (success) {
+                    syncMsg += " Berhasil auto-deploy & commit ke GitHub!";
+                } else {
+                    syncMsg += " (Catatan: Gagal commit otomatis ke GitHub, periksa token/repo Anda).";
+                }
+            }
+
+            showAlert("Berhasil", syncMsg);
             navigate('settings');
+        }
+
+        async function triggerManualGitHubSync() {
+            if (!state.settings.githubToken || !state.settings.githubUser || !state.settings.githubRepo) {
+                showAlert("Perhatian", "Harap isi Token, Username, dan Nama Repository GitHub terlebih dahulu pada menu GitHub Auto-Deploy.");
+                settingsActiveTab = 'github';
+                render();
+                return;
+            }
+            const success = await syncToGitHub();
+            if (success) {
+                showAlert("Sukses", "File index.html berhasil di-commit & push otomatis ke GitHub repository Anda!");
+            } else {
+                showAlert("Gagal", "Gagal melakukan sinkronisasi ke GitHub. Pastikan Token PAT Anda memiliki hak akses (scope: repo) dan nama repository sudah benar.");
+            }
         }
 
         function deleteTestiSetting(idx) {
@@ -2854,13 +2842,25 @@ ${visibleProductCount < filtered.length ? `
             }
 
             saveState();
-            showAlert("Berhasil", "Produk berhasil disimpan!");
+
+            // Auto-deploy to GitHub if configured
+            if (state.settings.githubToken && state.settings.githubUser && state.settings.githubRepo) {
+                await syncToGitHub();
+            }
+
+            showAlert("Berhasil", "Produk berhasil disimpan dan disinkronkan!");
             navigate('home');
         }
 
         function deleteProduct(id) {
             state.products = state.products.filter(item => item.id !== id);
             saveState();
+
+            // Auto-deploy to GitHub if configured
+            if (state.settings.githubToken && state.settings.githubUser && state.settings.githubRepo) {
+                syncToGitHub();
+            }
+
             showAlert("Berhasil", "Produk telah dihapus.");
             navigate('home');
         }
@@ -2888,91 +2888,6 @@ ${visibleProductCount < filtered.length ? `
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
             showAlert("Backup Berhasil", "File index.html terbaru beserta seluruh data produk, pengaturan, FAQ, testimoni, galeri, dan akun admin telah berhasil diunduh. Silakan unggah file ini untuk mendeploy pembaruan secara utuh.");
-        }
-
-        window.saveGithubConfig = function() {
-            if (typeof githubConfig === 'undefined') window.githubConfig = {};
-            githubConfig = {
-                owner: document.getElementById('gh-owner').value.trim(),
-                repo: document.getElementById('gh-repo').value.trim(),
-                branch: document.getElementById('gh-branch').value.trim() || 'main',
-                token: document.getElementById('gh-token').value.trim()
-            };
-            localStorage.setItem('dm_github_config', JSON.stringify(githubConfig));
-            showAlert("Berhasil", "Konfigurasi GitHub berhasil disimpan di browser Anda.");
-        }
-
-        window.syncToGitHub = async function() {
-            const configStr = localStorage.getItem('dm_github_config');
-            const config = configStr ? JSON.parse(configStr) : null;
-            
-            if (!config || !config.token || !config.repo || !config.owner) {
-                showAlert("Konfigurasi GitHub Belum Lengkap", "Silakan lengkapi Username, Repository, dan Token di menu Pengaturan > Integrasi Auto-Sync terlebih dahulu.");
-                navigate('settings');
-                settingsActiveTab = 'github';
-                render();
-                return;
-            }
-
-            // Show loading alert
-            showAlert("Proses Deploy", "Sedang mengunggah file ke GitHub... mohon tunggu beberapa detik, jangan tutup halaman ini.");
-
-            try {
-                // 1. Prepare HTML Content
-                saveState();
-                const stateStoreEl = document.getElementById('app-state-store');
-                if (stateStoreEl) {
-                    stateStoreEl.textContent = JSON.stringify(state);
-                }
-                const cloneDoc = document.documentElement.outerHTML;
-                const htmlContent = "<!DOCTYPE html>\n" + cloneDoc;
-
-                // Create UTF-8 safe base64
-                const base64Content = btoa(unescape(encodeURIComponent(htmlContent)));
-
-                const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/index.html`;
-
-                // 2. Fetch current file SHA from GitHub (Required to update file)
-                let currentSha = null;
-                const getRes = await fetch(apiUrl, {
-                    headers: {
-                        'Authorization': `token ${config.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-
-                if (getRes.ok) {
-                    const getJson = await getRes.json();
-                    currentSha = getJson.sha;
-                } else if (getRes.status !== 404) {
-                    throw new Error("Gagal mengambil file index.html di repositori. Pastikan Repositori dan Token valid.");
-                }
-
-                // 3. PUT the new content
-                const putRes = await fetch(apiUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${config.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: "Auto-deploy update from Web Admin Panel",
-                        content: base64Content,
-                        sha: currentSha,
-                        branch: config.branch || "main"
-                    })
-                });
-
-                if (putRes.ok) {
-                    showAlert("Deploy Berhasil! 🎉", "Perubahan telah tersimpan dan di-push otomatis ke GitHub. Tunggu 1-2 menit hingga GitHub Pages memperbarui tampilan situs Anda secara publik.");
-                } else {
-                    const errJson = await putRes.json();
-                    showAlert("Gagal Deploy", "GitHub Error: " + (errJson.message || putRes.statusText));
-                }
-            } catch (error) {
-                showAlert("Terjadi Kesalahan", error.message);
-            }
         }
 
         // --- RENDER MAIN FUNCTION ---
