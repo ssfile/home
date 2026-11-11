@@ -1813,13 +1813,13 @@
             const waNum = appData.waNumber || "6281234567890";
 
             const msg = `Halo Admin *${appData.storeName}*, saya ingin memesan file digital berikut:\n\n` +
-                        `📌 *Produk:* ${p.title}\n` +
-                        `📂 *Kategori:* ${p.mainCat} / ${p.subCat} / ${p.type}\n` +
-                        `🔖 *Format:* ${p.format}\n` +
-                        `💰 *Harga:* Rp${finalPrice.toLocaleString('id-ID')}\n` +
-                        `🔗 *Link Produk:* ${currentProductUrl}\n\n` +
-                        `👤 *Nama Pembeli:* ${name}\n` +
-                        `📧 *Email Pengiriman:* ${email}\n\n` +
+                        `*Produk:* ${p.title}\n` +
+                        `*Kategori:* ${p.mainCat} / ${p.subCat} / ${p.type}\n` +
+                        `*Format:* ${p.format}\n` +
+                        `*Harga:* Rp${finalPrice.toLocaleString('id-ID')}\n` +
+                        `*Link Produk:* ${currentProductUrl}\n\n` +
+                        `*Nama Pembeli:* ${name}\n` +
+                        `*Email Pengiriman:* ${email}\n\n` +
                         `Mohon info tata cara pembayaran selanjutnya. Terima kasih!`;
 
             document.getElementById('checkout-popup-modal').classList.add('hidden');
@@ -1834,10 +1834,10 @@
             const waNum = appData.waNumber || "6281234567890";
 
             const msg = `Halo Admin *${appData.storeName}*, saya ingin memesan file dokumen berikut:\n\n` +
-                        `📌 *Produk:* ${p.title}\n` +
-                        `📂 *Kategori:* ${p.mainCat} / ${p.subCat}\n` +
-                        `💰 *Harga:* Rp${finalPrice.toLocaleString('id-ID')}\n` +
-                        `🔗 *Link Produk:* ${currentProductUrl}\n\n` +
+                        `*Produk:* ${p.title}\n` +
+                        `*Kategori:* ${p.mainCat} / ${p.subCat}\n` +
+                        `*Harga:* Rp${finalPrice.toLocaleString('id-ID')}\n` +
+                        `*Link Produk:* ${currentProductUrl}\n\n` +
                         `Mohon info pembayaran selanjutnya. Terima kasih!`;
 
             window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`, '_blank');
