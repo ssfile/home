@@ -168,38 +168,49 @@
                         <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-5">
                             <div>
                                 <h3 class="text-xl font-extrabold text-slate-900 tracking-tight">Katalog Produk Dokumen</h3>
-                                <p class="text-xs text-slate-500 font-medium mt-0.5">Gunakan filter 3 tingkat untuk menemukan dokumen yang Anda perlukan.</p>
+                                <p class="text-xs text-slate-500 font-medium mt-0.5">Gunakan filter dropdown di bawah ini untuk menemukan dokumen yang Anda perlukan.</p>
                             </div>
                         </div>
 
-                        <!-- 3-TIER DEPENDENT DROPDOWN FILTERS -->
-                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
-                            <div>
+                        <!-- CUSTOM DROPDOWN FILTERS -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 relative">
+                            <!-- Main Category Dropdown -->
+                            <div class="relative">
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Kategori Utama</label>
-                                <select id="filter-main-cat" onchange="onMainCatChange()" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-slate-900">
-                                    <option value="">Semua Kategori</option>
-                                </select>
+                                <button type="button" onclick="toggleCustomDropdown('dropdown-main-cat')" id="btn-dropdown-main-cat" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold text-slate-900 flex items-center justify-between text-left shadow-sm">
+                                    <span id="label-main-cat">Semua Kategori</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                                </button>
+                                <div id="dropdown-main-cat" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-30 hidden max-h-60 overflow-y-auto">
+                                    <div onclick="selectMainCat('', 'Semua Kategori')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">Semua Kategori</div>
+                                    <div id="list-options-main-cat"></div>
+                                </div>
                             </div>
-                            <div>
+
+                            <!-- Sub Category Dropdown -->
+                            <div class="relative">
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Sub Kategori</label>
-                                <select id="filter-sub-cat" onchange="onSubCatChange()" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-slate-900">
-                                    <option value="">Semua Sub Kategori</option>
-                                </select>
+                                <button type="button" onclick="toggleCustomDropdown('dropdown-sub-cat')" id="btn-dropdown-sub-cat" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold text-slate-900 flex items-center justify-between text-left shadow-sm">
+                                    <span id="label-sub-cat">Semua Sub Kategori</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                                </button>
+                                <div id="dropdown-sub-cat" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-30 hidden max-h-60 overflow-y-auto">
+                                    <div onclick="selectSubCat('', 'Semua Sub Kategori')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">Semua Sub Kategori</div>
+                                    <div id="list-options-sub-cat"></div>
+                                </div>
                             </div>
-                            <div>
+
+                            <!-- Type Dropdown -->
+                            <div class="relative">
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Tipe</label>
-                                <select id="filter-type-cat" onchange="applyFiltersAndRender()" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-slate-900">
-                                    <option value="">Semua Tipe</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Urutkan</label>
-                                <select id="sort-select" onchange="applyFiltersAndRender()" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-primary text-slate-900">
-                                    <option value="newest">Terbaru</option>
-                                    <option value="popular">Terlaris (Best Seller)</option>
-                                    <option value="price-low">Harga Terendah</option>
-                                    <option value="price-high">Harga Tertinggi</option>
-                                </select>
+                                <button type="button" onclick="toggleCustomDropdown('dropdown-type-cat')" id="btn-dropdown-type-cat" class="w-full bg-slate-50 border border-slate-200/80 rounded-lg px-3.5 py-2.5 text-xs font-semibold text-slate-900 flex items-center justify-between text-left shadow-sm">
+                                    <span id="label-type-cat">Semua Tipe</span>
+                                    <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                                </button>
+                                <div id="dropdown-type-cat" class="absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-30 hidden max-h-60 overflow-y-auto">
+                                    <div onclick="selectTypeCat('', 'Semua Tipe')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">Semua Tipe</div>
+                                    <div id="list-options-type-cat"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -374,10 +385,21 @@
                 </div>
 
                 <!-- FULL RICH TEXT DESCRIPTION -->
-                <div class="bg-white rounded-xl p-6 sm:p-10 shadow-lg border border-slate-100 space-y-5">
-                    <h3 class="text-xl font-extrabold text-slate-900 border-b border-slate-100 pb-3">Deskripsi Lengkap Produk</h3>
-                    <div id="detail-rich-description" class="prose max-w-none text-slate-700 text-xs sm:text-sm leading-relaxed space-y-3.5 font-normal">
-                        <!-- Rich Text HTML injected -->
+                <div class="space-y-6">
+                    <!-- PRODUCT METADATA CARD (FORMAT, CATEGORIES, TAGS) -->
+                    <div class="bg-white rounded-xl p-6 sm:p-8 shadow-lg border border-slate-100 space-y-4">
+                        <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-2">Informasi & Kategori Produk</h4>
+                        <div id="detail-badges-box-row" class="flex flex-wrap items-center gap-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- FULL RICH TEXT DESCRIPTION -->
+                    <div class="bg-white rounded-xl p-6 sm:p-10 shadow-lg border border-slate-100 space-y-5">
+                        <h3 class="text-xl font-extrabold text-slate-900 border-b border-slate-100 pb-3">Deskripsi Lengkap Produk</h3>
+                        <div id="detail-rich-description" class="prose max-w-none text-slate-700 text-xs sm:text-sm leading-relaxed space-y-3.5 font-normal">
+                            <!-- Rich Text HTML injected -->
+                        </div>
                     </div>
                 </div>
 
@@ -1165,6 +1187,10 @@
         let activeProductId = null;
         let promoTimer = null;
 
+        let selectedMainCatVal = "";
+        let selectedSubCatVal = "";
+        let selectedTypeCatVal = "";
+
         // Define renderStorefront globally so it is accessible on window.onload
         function renderStorefront() {
             renderAnnouncements();
@@ -1347,54 +1373,89 @@
             }, 4000);
         }
 
-        function populateMainCategoryDropdown() {
-            const mainSel = document.getElementById('filter-main-cat');
-            const currentVal = mainSel.value;
-            const mainCats = [...new Set(appData.products.map(p => p.mainCat))];
-            let html = '<option value="">Semua Kategori</option>';
-            mainCats.forEach(c => {
-                html += `<option value="${c}">${c}</option>`;
+        function toggleCustomDropdown(dropdownId) {
+            ['dropdown-main-cat', 'dropdown-sub-cat', 'dropdown-type-cat'].forEach(id => {
+                if(id !== dropdownId) document.getElementById(id).classList.add('hidden');
             });
-            mainSel.innerHTML = html;
-            mainSel.value = currentVal;
+            document.getElementById(dropdownId).classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function(e) {
+            if(!e.target.closest('button') && !e.target.closest('[id^="dropdown-"]')) {
+                ['dropdown-main-cat', 'dropdown-sub-cat', 'dropdown-type-cat'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if(el) el.classList.add('hidden');
+                });
+            }
+        });
+
+        function populateMainCategoryDropdown() {
+            selectedMainCatVal = "";
+            document.getElementById('label-main-cat').innerText = "Semua Kategori";
+            const mainCats = [...new Set(appData.products.map(p => p.mainCat))];
+            let html = '';
+            mainCats.forEach(c => {
+                html += `<div onclick="selectMainCat('${c}', '${c}')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">${c}</div>`;
+            });
+            document.getElementById('list-options-main-cat').innerHTML = html;
             onMainCatChange(true);
         }
 
+        function selectMainCat(val, label) {
+            selectedMainCatVal = val;
+            document.getElementById('label-main-cat').innerText = label;
+            document.getElementById('dropdown-main-cat').classList.add('hidden');
+            onMainCatChange(false);
+        }
+
         function onMainCatChange(preserveSub = false) {
-            const mainCat = document.getElementById('filter-main-cat').value;
-            const subSel = document.getElementById('filter-sub-cat');
-            const currentSub = preserveSub ? subSel.value : '';
+            if(!preserveSub) {
+                selectedSubCatVal = "";
+                document.getElementById('label-sub-cat').innerText = "Semua Sub Kategori";
+            }
             
             let filtered = appData.products;
-            if(mainCat) filtered = filtered.filter(p => p.mainCat === mainCat);
+            if(selectedMainCatVal) filtered = filtered.filter(p => p.mainCat === selectedMainCatVal);
             const subCats = [...new Set(filtered.map(p => p.subCat))];
             
-            let html = '<option value="">Semua Sub Kategori</option>';
+            let html = '';
             subCats.forEach(s => {
-                html += `<option value="${s}">${s}</option>`;
+                html += `<div onclick="selectSubCat('${s}', '${s}')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">${s}</div>`;
             });
-            subSel.innerHTML = html;
-            subSel.value = currentSub;
+            document.getElementById('list-options-sub-cat').innerHTML = html;
             onSubCatChange(preserveSub);
         }
 
+        function selectSubCat(val, label) {
+            selectedSubCatVal = val;
+            document.getElementById('label-sub-cat').innerText = label;
+            document.getElementById('dropdown-sub-cat').classList.add('hidden');
+            onSubCatChange(false);
+        }
+
         function onSubCatChange(preserveType = false) {
-            const mainCat = document.getElementById('filter-main-cat').value;
-            const subCat = document.getElementById('filter-sub-cat').value;
-            const typeSel = document.getElementById('filter-type-cat');
-            const currentType = preserveType ? typeSel.value : '';
+            if(!preserveType) {
+                selectedTypeCatVal = "";
+                document.getElementById('label-type-cat').innerText = "Semua Tipe";
+            }
 
             let filtered = appData.products;
-            if(mainCat) filtered = filtered.filter(p => p.mainCat === mainCat);
-            if(subCat) filtered = filtered.filter(p => p.subCat === subCat);
+            if(selectedMainCatVal) filtered = filtered.filter(p => p.mainCat === selectedMainCatVal);
+            if(selectedSubCatVal) filtered = filtered.filter(p => p.subCat === selectedSubCatVal);
             const types = [...new Set(filtered.map(p => p.type))];
 
-            let html = '<option value="">Semua Tipe</option>';
+            let html = '';
             types.forEach(t => {
-                html += `<option value="${t}">${t}</option>`;
+                html += `<div onclick="selectTypeCat('${t}', '${t}')" class="px-4 py-2.5 text-xs font-semibold hover:bg-blue-50 hover:text-primary cursor-pointer border-b border-slate-100">${t}</div>`;
             });
-            typeSel.innerHTML = html;
-            typeSel.value = currentType;
+            document.getElementById('list-options-type-cat').innerHTML = html;
+            applyFiltersAndRender();
+        }
+
+        function selectTypeCat(val, label) {
+            selectedTypeCatVal = val;
+            document.getElementById('label-type-cat').innerText = label;
+            document.getElementById('dropdown-type-cat').classList.add('hidden');
             applyFiltersAndRender();
         }
 
@@ -1404,32 +1465,19 @@
         }
 
         function getFilteredProducts() {
-            const mainCat = document.getElementById('filter-main-cat').value;
-            const subCat = document.getElementById('filter-sub-cat').value;
-            const typeCat = document.getElementById('filter-type-cat').value;
-            const sortVal = document.getElementById('sort-select').value;
             const query = (document.getElementById('store-search-input').value || document.getElementById('store-search-mobile').value || '').toLowerCase();
 
             let list = [...appData.products];
 
-            if(mainCat) list = list.filter(p => p.mainCat === mainCat);
-            if(subCat) list = list.filter(p => p.subCat === subCat);
-            if(typeCat) list = list.filter(p => p.type === typeCat);
+            if(selectedMainCatVal) list = list.filter(p => p.mainCat === selectedMainCatVal);
+            if(selectedSubCatVal) list = list.filter(p => p.subCat === selectedSubCatVal);
+            if(selectedTypeCatVal) list = list.filter(p => p.type === selectedTypeCatVal);
 
             if(query) {
                 list = list.filter(p => p.title.toLowerCase().includes(query) || (p.tags && p.tags.toLowerCase().includes(query)) || p.mainCat.toLowerCase().includes(query));
             }
 
-            if(sortVal === 'newest') {
-                list.reverse();
-            } else if(sortVal === 'popular') {
-                list.sort((a,b) => b.sold - a.sold);
-            } else if(sortVal === 'price-low') {
-                list.sort((a,b) => (a.price * (100 - a.disc)/100) - (b.price * (100 - b.disc)/100));
-            } else if(sortVal === 'price-high') {
-                list.sort((a,b) => (b.price * (100 - b.disc)/100) - (a.price * (100 - a.disc)/100));
-            }
-
+            list.reverse();
             return list;
         }
 
@@ -1441,12 +1489,9 @@
             const chipContainer = document.getElementById('active-filter-chips');
             const indicator = document.getElementById('active-filter-indicator');
             let chipsHtml = '';
-            const mc = document.getElementById('filter-main-cat').value;
-            const sc = document.getElementById('filter-sub-cat').value;
-            const tc = document.getElementById('filter-type-cat').value;
-            if(mc) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${mc}</span>`;
-            if(sc) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${sc}</span>`;
-            if(tc) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${tc}</span>`;
+            if(selectedMainCatVal) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${selectedMainCatVal}</span>`;
+            if(selectedSubCatVal) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${selectedSubCatVal}</span>`;
+            if(selectedTypeCatVal) chipsHtml += `<span class="px-2.5 py-1 bg-blue-50 text-primary text-[11px] font-bold rounded-md border border-blue-100">${selectedTypeCatVal}</span>`;
             
             if(chipsHtml) {
                 chipContainer.innerHTML = chipsHtml;
@@ -1545,11 +1590,15 @@
         }
 
         function resetAllFilters() {
-            document.getElementById('filter-main-cat').value = '';
+            selectedMainCatVal = "";
+            selectedSubCatVal = "";
+            selectedTypeCatVal = "";
+            document.getElementById('label-main-cat').innerText = "Semua Kategori";
+            document.getElementById('label-sub-cat').innerText = "Semua Sub Kategori";
+            document.getElementById('label-type-cat').innerText = "Semua Tipe";
             onMainCatChange();
             document.getElementById('store-search-input').value = '';
             document.getElementById('store-search-mobile').value = '';
-            document.getElementById('sort-select').value = 'newest';
             applyFiltersAndRender();
         }
 
@@ -1581,20 +1630,21 @@
 
             // Badges row with clickable category, subcategory, type, format and tags
             let badgesHtml = `
-                <span onclick="filterByBadge('format', '${p.format}')" class="px-3 py-1 rounded-md text-xs font-extrabold text-white bg-blue-600 shadow-sm cursor-pointer hover:opacity-90 transition-opacity">${p.format}</span>
-                <span onclick="filterByBadge('main', '${p.mainCat}')" class="px-3 py-1 rounded-md text-xs font-bold text-primary bg-blue-50 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">${p.mainCat}</span>
-                <span onclick="filterByBadge('sub', '${p.subCat}')" class="px-3 py-1 rounded-md text-xs font-bold text-slate-700 bg-slate-100 shadow-sm cursor-pointer hover:bg-slate-200 transition-colors">${p.subCat}</span>
-                <span onclick="filterByBadge('type', '${p.type}')" class="px-3 py-1 rounded-md text-xs font-bold text-indigo-700 bg-indigo-50 shadow-sm cursor-pointer hover:bg-indigo-100 transition-colors">${p.type}</span>
+                <span onclick="filterByBadge('format', '${p.format}')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold text-white bg-blue-600 shadow-sm cursor-pointer hover:opacity-90 transition-opacity">Format: ${p.format}</span>
+                <span onclick="filterByBadge('main', '${p.mainCat}')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-primary bg-blue-50 shadow-sm cursor-pointer hover:bg-blue-100 transition-colors">Kategori: ${p.mainCat}</span>
+                <span onclick="filterByBadge('sub', '${p.subCat}')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 shadow-sm cursor-pointer hover:bg-slate-200 transition-colors">Sub: ${p.subCat}</span>
+                <span onclick="filterByBadge('type', '${p.type}')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-indigo-700 bg-indigo-50 shadow-sm cursor-pointer hover:bg-indigo-100 transition-colors">Tipe: ${p.type}</span>
             `;
             if(p.tags) {
                 p.tags.split(',').forEach(tag => {
                     const cleanTag = tag.trim();
                     if(cleanTag) {
-                        badgesHtml += `<span onclick="filterByBadge('tag', '${cleanTag}')" class="px-2.5 py-0.5 rounded-md text-[10px] font-bold text-emerald-700 bg-emerald-50 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">#${cleanTag}</span>`;
+                        badgesHtml += `<span onclick="filterByBadge('tag', '${cleanTag}')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-50 shadow-sm cursor-pointer hover:bg-emerald-100 transition-colors">#${cleanTag}</span>`;
                     }
                 });
             }
-            document.getElementById('detail-badges-row').innerHTML = badgesHtml;
+            document.getElementById('detail-badges-box-row').innerHTML = badgesHtml;
+            document.getElementById('detail-badges-row').innerHTML = '';
 
             // Thumbnails
             let thumbsHtml = `
@@ -1628,25 +1678,30 @@
         function filterByBadge(type, val) {
             backToHome();
             if(type === 'main') {
-                document.getElementById('filter-main-cat').value = val;
+                selectedMainCatVal = val;
+                document.getElementById('label-main-cat').innerText = val;
                 onMainCatChange(true);
             } else if(type === 'sub') {
-                const mainSel = document.getElementById('filter-main-cat');
                 const matched = appData.products.find(item => item.subCat === val);
                 if(matched) {
-                    mainSel.value = matched.mainCat;
+                    selectedMainCatVal = matched.mainCat;
+                    document.getElementById('label-main-cat').innerText = matched.mainCat;
                     onMainCatChange(true);
-                    document.getElementById('filter-sub-cat').value = val;
+                    selectedSubCatVal = val;
+                    document.getElementById('label-sub-cat').innerText = val;
                     onSubCatChange(true);
                 }
             } else if(type === 'type') {
                 const matched = appData.products.find(item => item.type === val);
                 if(matched) {
-                    document.getElementById('filter-main-cat').value = matched.mainCat;
+                    selectedMainCatVal = matched.mainCat;
+                    document.getElementById('label-main-cat').innerText = matched.mainCat;
                     onMainCatChange(true);
-                    document.getElementById('filter-sub-cat').value = matched.subCat;
+                    selectedSubCatVal = matched.subCat;
+                    document.getElementById('label-sub-cat').innerText = matched.subCat;
                     onSubCatChange(true);
-                    document.getElementById('filter-type-cat').value = val;
+                    selectedTypeCatVal = val;
+                    document.getElementById('label-type-cat').innerText = val;
                 }
             } else if(type === 'format') {
                 document.getElementById('store-search-input').value = val;
@@ -1663,37 +1718,19 @@
             const grid = document.getElementById('related-products-grid');
             let candidates = appData.products.filter(item => item.id !== currentProd.id);
 
-            // Weighted recommendation algorithm
             candidates.sort((a, b) => {
                 let scoreA = 0;
                 let scoreB = 0;
-
-                // 1. Matching Tags
                 const tagsA = a.tags ? a.tags.toLowerCase().split(',').map(t => t.trim()) : [];
                 const tagsB = b.tags ? b.tags.toLowerCase().split(',').map(t => t.trim()) : [];
                 const currentTags = currentProd.tags ? currentProd.tags.toLowerCase().split(',').map(t => t.trim()) : [];
                 
-                const matchTagsA = tagsA.some(t => currentTags.includes(t));
-                const matchTagsB = tagsB.some(t => currentTags.includes(t));
-                if(matchTagsA) scoreA += 10;
-                if(matchTagsB) scoreB += 10;
-
-                // 2. Sub Category
+                if(tagsA.some(t => currentTags.includes(t))) scoreA += 10;
+                if(tagsB.some(t => currentTags.includes(t))) scoreB += 10;
                 if(a.subCat === currentProd.subCat) scoreA += 7;
                 if(b.subCat === currentProd.subCat) scoreB += 7;
-
-                // 3. Type
                 if(a.type === currentProd.type) scoreA += 5;
                 if(b.type === currentProd.type) scoreB += 5;
-
-                // 4. Title similarity
-                const titleWordsA = a.title.toLowerCase().split(' ');
-                const titleWordsB = b.title.toLowerCase().split(' ');
-                const currentTitleWords = currentProd.title.toLowerCase().split(' ');
-                const matchTitleA = titleWordsA.some(w => currentTitleWords.includes(w) && w.length > 3);
-                const matchTitleB = titleWordsB.some(w => currentTitleWords.includes(w) && w.length > 3);
-                if(matchTitleA) scoreA += 3;
-                if(matchTitleB) scoreB += 3;
 
                 return scoreB - scoreA;
             });
@@ -1707,14 +1744,14 @@
             let html = '';
             rels.forEach(p => {
                 const finalPrice = Math.round(p.price * (100 - p.disc) / 100);
-                const formatColor = p.format === '.docx' ? 'bg-blue-600' : p.format === '.xlsx' ? 'bg-emerald-600' : p.format === '.pptx' ? 'bg-amber-600' : p.format === '.pdf' ? 'bg-rose-600' : 'bg-purple-600';
+                const formatColor = p.format === '.docx' ? 'bg-blue-600' : p.format === '.xlsx' ? 'bg-emerald-600' : p.format === '.pptx' ? 'bg-amber-600' : 'bg-purple-600';
 
                 html += `
                     <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl product-card-transition border border-slate-100 flex flex-col relative group">
                         <div class="aspect-[16/10] relative overflow-hidden bg-slate-100 cursor-pointer" onclick="openFullProduct('${p.id}')">
                             <img src="${p.cover}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             <span class="absolute top-3 left-3 px-3 py-1 rounded-md text-[10px] font-extrabold text-white ${formatColor} shadow-sm">${p.format}</span>
-                            ${p.disc > 0 ? `<span class="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold text-white bg-red-500 shadow-sm">Diskon ${p.disc}%</span>` : ''}
+                            ${p.disc > 0 ? `<span class="absolute bottom-3 left-3 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold text-white bg-red-500 shadow-sm">Disc ${p.disc}%</span>` : ''}
                         </div>
                         <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
                             <div class="space-y-1 cursor-pointer" onclick="openFullProduct('${p.id}')">
@@ -1780,7 +1817,7 @@
                         `📂 *Kategori:* ${p.mainCat} / ${p.subCat} / ${p.type}\n` +
                         `🔖 *Format:* ${p.format}\n` +
                         `💰 *Harga:* Rp${finalPrice.toLocaleString('id-ID')}\n` +
-                        `🔗 *Link Produk saat Diklik:* ${currentProductUrl}\n\n` +
+                        `🔗 *Link Produk:* ${currentProductUrl}\n\n` +
                         `👤 *Nama Pembeli:* ${name}\n` +
                         `📧 *Email Pengiriman:* ${email}\n\n` +
                         `Mohon info tata cara pembayaran selanjutnya. Terima kasih!`;
@@ -1822,16 +1859,16 @@
             let html = '';
             appData.testimonials.forEach(t => {
                 let stars = '';
-                for(let i=0; i<t.rating; i++) stars += '<i class="fa-solid fa-star text-amber-400 text-xs"></i>';
+                for(let i=0; i<t.rating; i++) stars += '<i class="fa-solid fa-star text-amber-400 text-[10px] sm:text-xs"></i>';
                 html += `
-                    <div class="min-w-full sm:min-w-[calc(33.333%-14px)] bg-white rounded-xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between space-y-4 relative">
-                        <div class="absolute top-6 right-6 text-primary/10 text-3xl"><i class="fa-solid fa-quote-right"></i></div>
-                        <div class="space-y-3">
+                    <div class="min-w-[85vw] sm:min-w-[calc(33.333%-14px)] max-w-[320px] shrink-0 bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-100 flex flex-col justify-between space-y-3 relative">
+                        <div class="absolute top-3 right-3 text-primary/10 text-xl sm:text-2xl"><i class="fa-solid fa-quote-right"></i></div>
+                        <div class="space-y-2">
                             <div class="flex items-center gap-1">${stars}</div>
-                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">"${t.text}"</p>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal line-clamp-4">"${t.text}"</p>
                         </div>
-                        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
-                            <img src="${t.avatar}" class="w-10 h-10 rounded-lg object-cover shadow-sm">
+                        <div class="flex items-center gap-2.5 sm:gap-3 pt-3 border-t border-slate-100">
+                            <img src="${t.avatar}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover shadow-sm">
                             <div>
                                 <h5 class="text-xs font-bold text-slate-900">${t.name}</h5>
                                 <p class="text-[10px] text-slate-500 font-medium">${t.role}</p>
@@ -1841,13 +1878,15 @@
                 `;
             });
             container.innerHTML = html;
-            const w = container.children[0] ? container.children[0].offsetWidth + 20 : 350;
+            const cardEl = container.children[0];
+            const w = cardEl ? cardEl.offsetWidth + 12 : 260;
             container.style.transform = `translateX(-${testiIndex * w}px)`;
         }
 
         function moveTesti(dir) {
             if(!appData.testimonials) return;
-            const maxIdx = Math.max(0, appData.testimonials.length - 3);
+            const visibleCount = window.innerWidth >= 640 ? 3 : 1;
+            const maxIdx = Math.max(0, appData.testimonials.length - visibleCount);
             testiIndex = Math.max(0, Math.min(maxIdx, testiIndex + dir));
             renderTestimonials();
         }
@@ -1858,153 +1897,149 @@
             let html = '';
             appData.portfolio.forEach(item => {
                 html += `
-                    <div class="min-w-[280px] sm:min-w-[320px] bg-white rounded-xl overflow-hidden shadow-lg border border-slate-100 flex flex-col cursor-pointer group" onclick="openLightbox('${item.img}')">
+                    <div class="min-w-[65vw] sm:min-w-[280px] max-w-[260px] shrink-0 bg-white rounded-xl overflow-hidden shadow-lg border border-slate-100 flex flex-col cursor-pointer group" onclick="openLightbox('${item.img}')">
                         <div class="aspect-[4/3] relative overflow-hidden bg-slate-100">
                             <img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         </div>
-                        <div class="p-4 bg-white">
+                        <div class="p-3 sm:p-4 bg-white">
                             <p class="text-xs font-bold text-slate-900 line-clamp-1">${item.caption}</p>
-                            <span class="text-[10px] text-primary font-semibold">Lihat Bukti Foto</span>
+                            <span class="text-[10px] text-primary font-semibold">Lihat Foto</span>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-            const w = 340;
+            const cardEl = container.children[0];
+            const w = cardEl ? cardEl.offsetWidth + 12 : 200;
             container.style.transform = `translateX(-${portIndex * w}px)`;
         }
 
         function movePortfolio(dir) {
             if(!appData.portfolio) return;
-            const maxIdx = Math.max(0, appData.portfolio.length - 3);
+            const visibleCount = window.innerWidth >= 640 ? 4 : 1;
+            const maxIdx = Math.max(0, appData.portfolio.length - visibleCount);
             portIndex = Math.max(0, Math.min(maxIdx, portIndex + dir));
             renderPortfolio();
         }
 
-        function renderAboutMe() {
-            const a = appData.about || INITIAL_STATE.about;
-            document.getElementById('about-avatar-img').src = a.img;
-            document.getElementById('about-title-text').innerText = a.title;
-            
-            const descParas = a.desc.split('\n').map(p => `<p>${p}</p>`).join('');
-            document.getElementById('about-desc-text').innerHTML = descParas;
-
-            const socialColor = appData.theme?.socialIcon || '#2563eb';
-            let html = '';
-            if(appData.waNumber || appData.socialWa) html += `<a href="${appData.socialWa || `https://wa.me/${appData.waNumber}`}" target="_blank" style="color: ${socialColor}" class="w-10 h-10 rounded-lg bg-blue-50 hover:bg-emerald-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-whatsapp text-sm"></i></a>`;
-            if(appData.socialIg) html += `<a href="${appData.socialIg}" target="_blank" style="color: ${socialColor}" class="w-10 h-10 rounded-lg bg-blue-50 hover:bg-pink-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-instagram text-sm"></i></a>`;
-            if(appData.socialTiktok) html += `<a href="${appData.socialTiktok}" target="_blank" style="color: ${socialColor}" class="w-10 h-10 rounded-lg bg-blue-50 hover:bg-black hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-tiktok text-sm"></i></a>`;
-            if(appData.socialFb) html += `<a href="${appData.socialFb}" target="_blank" style="color: ${socialColor}" class="w-10 h-10 rounded-lg bg-blue-50 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-facebook-f text-sm"></i></a>`;
-            document.getElementById('about-social-links').innerHTML = html;
-        }
-
-        function renderFaq() {
-            const container = document.getElementById('faq-accordion-container');
-            if(!appData.faqs || appData.faqs.length === 0) return;
-            let html = '';
-            appData.faqs.forEach((f, idx) => {
-                const num = (idx + 1).toString().padStart(2, '0');
-                html += `
-                    <div class="bg-white rounded-xl border border-slate-100 shadow-lg overflow-hidden transition-all">
-                        <button onclick="toggleFaqAccordion(${idx})" class="w-full p-5 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
-                            <div class="flex items-center gap-3.5">
-                                <span class="text-xs font-black text-primary font-mono">${num}</span>
-                                <h4 class="text-xs sm:text-sm font-bold text-slate-900">${f.q}</h4>
-                            </div>
-                            <i id="faq-icon-${idx}" class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform"></i>
-                        </button>
-                        <div id="faq-body-${idx}" class="hidden px-5 pb-5 text-xs text-slate-600 leading-relaxed font-normal border-t border-slate-100 pt-3">
-                            ${f.a}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        function toggleFaqAccordion(idx) {
-            const body = document.getElementById(`faq-body-${idx}`);
-            const icon = document.getElementById(`faq-icon-${idx}`);
-            body.classList.toggle('hidden');
-            icon.classList.toggle('rotate-180');
-        }
-
         function renderFpTestimonials() {
             const container = document.getElementById('fp-testimonial-slider');
-            if(!appData.testimonials) return;
+            if(!appData.testimonials || appData.testimonials.length === 0) return;
             let html = '';
             appData.testimonials.forEach(t => {
                 let stars = '';
-                for(let i=0; i<t.rating; i++) stars += '<i class="fa-solid fa-star text-amber-400 text-xs"></i>';
+                for(let i=0; i<t.rating; i++) stars += '<i class="fa-solid fa-star text-amber-400 text-[10px] sm:text-xs"></i>';
                 html += `
-                    <div class="min-w-full sm:min-w-[calc(33.333%-14px)] bg-white rounded-xl p-6 shadow-lg border border-slate-100 flex flex-col justify-between space-y-4">
-                        <div class="space-y-3">
+                    <div class="min-w-[85vw] sm:min-w-[calc(33.333%-14px)] max-w-[320px] shrink-0 bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-100 flex flex-col justify-between space-y-3 relative">
+                        <div class="absolute top-3 right-3 text-primary/10 text-xl sm:text-2xl"><i class="fa-solid fa-quote-right"></i></div>
+                        <div class="space-y-2">
                             <div class="flex items-center gap-1">${stars}</div>
-                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal">"${t.text}"</p>
+                            <p class="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal line-clamp-4">"${t.text}"</p>
                         </div>
-                        <div class="flex items-center gap-3 pt-3 border-t border-slate-100">
-                            <img src="${t.avatar}" class="w-9 h-9 rounded-lg object-cover">
+                        <div class="flex items-center gap-2.5 sm:gap-3 pt-3 border-t border-slate-100">
+                            <img src="${t.avatar}" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover shadow-sm">
                             <div>
                                 <h5 class="text-xs font-bold text-slate-900">${t.name}</h5>
-                                <p class="text-[10px] text-slate-500">${t.role}</p>
+                                <p class="text-[10px] text-slate-500 font-medium">${t.role}</p>
                             </div>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-            const w = container.children[0] ? container.children[0].offsetWidth + 20 : 350;
+            const cardEl = container.children[0];
+            const w = cardEl ? cardEl.offsetWidth + 12 : 260;
             container.style.transform = `translateX(-${fpTestiIndex * w}px)`;
         }
 
         function moveFpTesti(dir) {
             if(!appData.testimonials) return;
-            const maxIdx = Math.max(0, appData.testimonials.length - 3);
+            const visibleCount = window.innerWidth >= 640 ? 3 : 1;
+            const maxIdx = Math.max(0, appData.testimonials.length - visibleCount);
             fpTestiIndex = Math.max(0, Math.min(maxIdx, fpTestiIndex + dir));
             renderFpTestimonials();
         }
 
         function renderFpPortfolio() {
             const container = document.getElementById('fp-portfolio-slider');
-            if(!appData.portfolio) return;
+            if(!appData.portfolio || appData.portfolio.length === 0) return;
             let html = '';
             appData.portfolio.forEach(item => {
                 html += `
-                    <div class="min-w-[280px] sm:min-w-[320px] bg-white rounded-xl overflow-hidden shadow-lg border border-slate-100 flex flex-col cursor-pointer" onclick="openLightbox('${item.img}')">
+                    <div class="min-w-[65vw] sm:min-w-[280px] max-w-[260px] shrink-0 bg-white rounded-xl overflow-hidden shadow-lg border border-slate-100 flex flex-col cursor-pointer group" onclick="openLightbox('${item.img}')">
                         <div class="aspect-[4/3] relative overflow-hidden bg-slate-100">
-                            <img src="${item.img}" class="w-full h-full object-cover">
+                            <img src="${item.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                         </div>
-                        <div class="p-4 bg-white">
+                        <div class="p-3 sm:p-4 bg-white">
                             <p class="text-xs font-bold text-slate-900 line-clamp-1">${item.caption}</p>
+                            <span class="text-[10px] text-primary font-semibold">Lihat Foto</span>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
-            const w = 340;
+            const cardEl = container.children[0];
+            const w = cardEl ? cardEl.offsetWidth + 12 : 200;
             container.style.transform = `translateX(-${fpPortIndex * w}px)`;
         }
 
         function moveFpPortfolio(dir) {
             if(!appData.portfolio) return;
-            const maxIdx = Math.max(0, appData.portfolio.length - 3);
+            const visibleCount = window.innerWidth >= 640 ? 4 : 1;
+            const maxIdx = Math.max(0, appData.portfolio.length - visibleCount);
             fpPortIndex = Math.max(0, Math.min(maxIdx, fpPortIndex + dir));
             renderFpPortfolio();
         }
 
-        function renderFpFaq() {
-            const container = document.getElementById('fp-faq-container');
-            if(!appData.faqs) return;
+        function renderAboutMe() {
+            if(!appData.about) return;
+            document.getElementById('about-avatar-img').src = appData.about.img;
+            document.getElementById('about-title-text').innerText = appData.about.title;
+            document.getElementById('about-desc-text').innerHTML = `<p>${appData.about.desc}</p>`;
+            
+            const t = appData.theme || INITIAL_STATE.theme;
+            const socialColor = t.socialIcon || '#2563eb';
+
+            let socialHtml = '';
+            if(appData.waNumber || appData.socialWa) socialHtml += `<a href="${appData.socialWa || `https://wa.me/${appData.waNumber}`}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-whatsapp text-sm"></i></a>`;
+            if(appData.socialIg) socialHtml += `<a href="${appData.socialIg}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-instagram text-sm"></i></a>`;
+            if(appData.socialTiktok) socialHtml += `<a href="${appData.socialTiktok}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-tiktok text-sm"></i></a>`;
+            if(appData.socialFb) socialHtml += `<a href="${appData.socialFb}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-facebook-f text-sm"></i></a>`;
+            
+            document.getElementById('about-social-links').innerHTML = socialHtml;
+        }
+
+        function renderFpAbout() {
+            if(!appData.about) return;
+            document.getElementById('fp-about-avatar').src = appData.about.img;
+            document.getElementById('fp-about-desc').innerText = appData.about.desc;
+
+            const t = appData.theme || INITIAL_STATE.theme;
+            const socialColor = t.socialIcon || '#2563eb';
+
+            let socialHtml = '';
+            if(appData.waNumber || appData.socialWa) socialHtml += `<a href="${appData.socialWa || `https://wa.me/${appData.waNumber}`}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-whatsapp text-sm"></i></a>`;
+            if(appData.socialIg) socialHtml += `<a href="${appData.socialIg}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-instagram text-sm"></i></a>`;
+            if(appData.socialTiktok) socialHtml += `<a href="${appData.socialTiktok}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-tiktok text-sm"></i></a>`;
+            if(appData.socialFb) socialHtml += `<a href="${appData.socialFb}" target="_blank" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all text-white shadow-sm hover:opacity-90" style="background-color: ${socialColor}"><i class="fa-brands fa-facebook-f text-sm"></i></a>`;
+
+            document.getElementById('fp-about-social-links').innerHTML = socialHtml;
+        }
+
+        function renderFqAccordion(containerId, isFp = false) {
+            const container = document.getElementById(containerId);
+            if(!appData.faqs || appData.faqs.length === 0) return;
             let html = '';
-            appData.faqs.forEach((f, idx) => {
+            appData.faqs.forEach((faq, idx) => {
+                const idAttr = `${isFp ? 'fp-' : ''}faq-${idx}`;
                 html += `
-                    <div class="bg-white rounded-xl border border-slate-100 shadow-lg overflow-hidden">
-                        <button onclick="toggleFpFaq(${idx})" class="w-full p-4 text-left flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
-                            <h4 class="text-xs sm:text-sm font-bold text-slate-900">${f.q}</h4>
-                            <i id="fp-faq-icon-${idx}" class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                    <div class="bg-white rounded-xl shadow-lg border border-slate-100 overflow-hidden">
+                        <button onclick="toggleFaqAccordion('${idAttr}')" class="w-full px-6 py-4 text-left font-extrabold text-xs sm:text-sm text-slate-900 flex items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
+                            <span>${faq.q}</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform" id="icon-${idAttr}"></i>
                         </button>
-                        <div id="fp-faq-body-${idx}" class="hidden px-4 pb-4 text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                            ${f.a}
+                        <div id="content-${idAttr}" class="hidden px-6 pb-4 text-xs sm:text-sm text-slate-600 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                            ${faq.a}
                         </div>
                     </div>
                 `;
@@ -2012,124 +2047,106 @@
             container.innerHTML = html;
         }
 
-        function toggleFpFaq(idx) {
-            const body = document.getElementById(`fp-faq-body-${idx}`);
-            const icon = document.getElementById(`fp-faq-icon-${idx}`);
-            body.classList.toggle('hidden');
+        function renderFaq() {
+            renderFqAccordion('faq-accordion-container', false);
+        }
+
+        function renderFpFaq() {
+            renderFqAccordion('fp-faq-container', true);
+        }
+
+        function toggleFaqAccordion(idAttr) {
+            const content = document.getElementById(`content-${idAttr}`);
+            const icon = document.getElementById(`icon-${idAttr}`);
+            content.classList.toggle('hidden');
             icon.classList.toggle('rotate-180');
         }
 
-        function renderFpAbout() {
-            const a = appData.about || INITIAL_STATE.about;
-            document.getElementById('fp-about-avatar').src = a.img;
-            document.getElementById('fp-about-desc').innerText = a.desc;
-            
-            const socialColor = appData.theme?.socialIcon || '#2563eb';
-            let html = '';
-            if(appData.waNumber || appData.socialWa) html += `<a href="${appData.socialWa || `https://wa.me/${appData.waNumber}`}" target="_blank" style="color: ${socialColor}" class="w-9 h-9 rounded-lg bg-blue-50 hover:bg-emerald-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-whatsapp text-xs"></i></a>`;
-            if(appData.socialIg) html += `<a href="${appData.socialIg}" target="_blank" style="color: ${socialColor}" class="w-9 h-9 rounded-lg bg-blue-50 hover:bg-pink-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-instagram text-xs"></i></a>`;
-            if(appData.socialTiktok) html += `<a href="${appData.socialTiktok}" target="_blank" style="color: ${socialColor}" class="w-9 h-9 rounded-lg bg-blue-50 hover:bg-black hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-tiktok text-xs"></i></a>`;
-            if(appData.socialFb) html += `<a href="${appData.socialFb}" target="_blank" style="color: ${socialColor}" class="w-9 h-9 rounded-lg bg-blue-50 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-all border border-blue-100 shadow-sm"><i class="fa-brands fa-facebook-f text-xs"></i></a>`;
-            document.getElementById('fp-about-social-links').innerHTML = html;
-        }
-
-        function openLightbox(src) {
-            document.getElementById('lightbox-img').src = src;
-            document.getElementById('lightbox-modal').classList.remove('hidden');
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox-modal').classList.add('hidden');
-        }
-
-        function showAlert(title, message) {
-            document.getElementById('custom-alert-title').innerText = title;
-            document.getElementById('custom-alert-message').innerText = message;
-            document.getElementById('custom-alert-modal').classList.remove('hidden');
-        }
-
         function openAdminAuthModal() {
-            if(isAdmin) {
-                openAdminDashboard();
-            } else {
-                document.getElementById('admin-auth-modal').classList.remove('hidden');
-            }
+            document.getElementById('admin-auth-modal').classList.remove('hidden');
         }
 
         function attemptLogin() {
             const u = document.getElementById('login-user').value.trim();
             const p = document.getElementById('login-pass').value.trim();
-            const validUser = appData.adminUser || "admin";
-            const validPass = appData.adminPass || "admin123";
+            const correctUser = appData.adminUser || 'admin';
+            const correctPass = appData.adminPass || 'admin123';
 
-            if(u === validUser && p === validPass) {
+            if(u === correctUser && p === correctPass) {
                 isAdmin = true;
                 localStorage.setItem('ssfile_is_admin', 'true');
                 document.getElementById('admin-auth-modal').classList.add('hidden');
-                updateAdminHeaderShortcut();
                 openAdminDashboard();
-                showAlert('Berhasil Login', 'Selamat datang di Panel Admin SS File!');
+                updateAdminHeaderShortcut();
             } else {
-                showAlert('Gagal Login', 'Username atau password admin salah.');
+                showAlert('Login Gagal', 'Username atau password admin salah.');
             }
         }
 
         function logoutAdmin() {
             isAdmin = false;
-            localStorage.removeItem('ssfile_is_admin');
+            localStorage.setItem('ssfile_is_admin', 'false');
+            viewStorefront();
             updateAdminHeaderShortcut();
-            document.getElementById('app-admin').classList.add('hidden');
-            document.getElementById('app-storefront').classList.remove('hidden');
-            showAlert('Logout', 'Anda telah keluar dari akun admin.');
+            showAlert('Keluar Admin', 'Anda telah keluar dari mode admin.');
+        }
+
+        function openAdminDashboard() {
+            document.getElementById('app-storefront').classList.add('hidden');
+            document.getElementById('app-admin').classList.remove('hidden');
+            initAdminFormValues();
+            switchAdminTab('tab-products');
+            window.scrollTo(0,0);
         }
 
         function viewStorefront() {
             document.getElementById('app-admin').classList.add('hidden');
             document.getElementById('app-storefront').classList.remove('hidden');
             renderStorefront();
-        }
-
-        function openAdminDashboard() {
-            document.getElementById('app-storefront').classList.add('hidden');
-            document.getElementById('app-admin').classList.remove('hidden');
-            populateAdminUI();
-            switchAdminTab('tab-products');
+            window.scrollTo(0,0);
         }
 
         function switchAdminTab(tabId) {
             document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-                btn.className = "admin-tab-btn whitespace-nowrap lg:whitespace-normal flex items-center gap-2.5 px-3.5 py-2.5 lg:px-4 lg:py-3 rounded-lg text-xs font-semibold hover:bg-slate-900 hover:text-white transition-all";
+                btn.classList.remove('bg-primary', 'text-white');
+                btn.classList.add('hover:bg-slate-900', 'hover:text-white');
             });
 
             document.getElementById(`admin-${tabId}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`btn-${tabId}`);
-            if(activeBtn) {
-                activeBtn.className = "admin-tab-btn whitespace-nowrap lg:whitespace-normal flex items-center gap-2.5 px-3.5 py-2.5 lg:px-4 lg:py-3 rounded-lg text-xs font-bold bg-primary text-white shadow-sm transition-all";
-            }
+            activeBtn.classList.add('bg-primary', 'text-white');
+            activeBtn.classList.remove('hover:bg-slate-900', 'hover:text-white');
+
+            const titles = {
+                'tab-products': 'Manajemen Produk',
+                'tab-settings': 'Pengaturan Toko & WhatsApp',
+                'tab-promos': 'Manajemen Banner & Pengumuman',
+                'tab-content': 'Konten, FAQ & Testimoni',
+                'tab-theme': 'Warna & Footer Website',
+                'tab-backup': 'Backup & Download HTML'
+            };
+            document.getElementById('admin-page-title').innerText = titles[tabId] || 'Panel Admin';
         }
 
-        function populateAdminUI() {
-            // Settings
-            document.getElementById('set-admin-user').value = appData.adminUser || "admin";
-            document.getElementById('set-admin-pass').value = "";
-            document.getElementById('set-header-logo').value = appData.headerLogo || "";
-            document.getElementById('set-footer-logo').value = appData.footerLogo || "";
-            document.getElementById('set-hero-bg').value = appData.heroBg || "";
-            document.getElementById('set-store-name').value = appData.storeName || "";
-            document.getElementById('set-store-subtitle').value = appData.storeSubtitle || "";
-            document.getElementById('set-wa-number').value = appData.waNumber || "";
-            document.getElementById('set-social-ig').value = appData.socialIg || "";
-            document.getElementById('set-social-tiktok').value = appData.socialTiktok || "";
-            document.getElementById('set-social-fb').value = appData.socialFb || "";
-            document.getElementById('set-social-wa').value = appData.socialWa || "";
+        function initAdminFormValues() {
+            document.getElementById('set-admin-user').value = appData.adminUser || 'admin';
+            document.getElementById('set-admin-pass').value = '';
+            document.getElementById('set-store-name').value = appData.storeName || '';
+            document.getElementById('set-store-subtitle').value = appData.storeSubtitle || '';
+            document.getElementById('set-header-logo').value = appData.headerLogo || '';
+            document.getElementById('set-footer-logo').value = appData.footerLogo || '';
+            document.getElementById('set-hero-bg').value = appData.heroBg || '';
+            document.getElementById('set-wa-number').value = appData.waNumber || '';
+            document.getElementById('set-social-ig').value = appData.socialIg || '';
+            document.getElementById('set-social-tiktok').value = appData.socialTiktok || '';
+            document.getElementById('set-social-fb').value = appData.socialFb || '';
+            document.getElementById('set-social-wa').value = appData.socialWa || '';
 
-            // About
-            document.getElementById('admin-about-img').value = appData.about?.img || "";
-            document.getElementById('admin-about-title').value = appData.about?.title || "";
-            document.getElementById('admin-about-desc').value = appData.about?.desc || "";
+            document.getElementById('admin-about-img').value = appData.about ? appData.about.img : '';
+            document.getElementById('admin-about-title').value = appData.about ? appData.about.title : '';
+            document.getElementById('admin-about-desc').value = appData.about ? appData.about.desc : '';
 
-            // Theme
             const t = appData.theme || INITIAL_STATE.theme;
             document.getElementById('color-primary').value = t.primary;
             document.getElementById('color-primary-text').value = t.primary;
@@ -2146,16 +2163,25 @@
             document.getElementById('color-social-icon').value = t.socialIcon || '#2563eb';
             document.getElementById('color-social-icon-text').value = t.socialIcon || '#2563eb';
 
-            document.getElementById('footer-custom-desc').value = appData.footerDesc || "";
-            document.getElementById('footer-custom-copy').value = appData.footerCopy || "";
+            document.getElementById('footer-custom-desc').value = appData.footerDesc || '';
+            document.getElementById('footer-custom-copy').value = appData.footerCopy || '';
 
             renderAdminProductsTable();
-            renderAdminAnnouncements();
-            renderAdminBanners();
-            renderAdminFaq();
-            renderAdminTesti();
-            renderAdminPortfolio();
+            renderAdminAnnouncementsList();
+            renderAdminBannersList();
+            renderAdminFaqList();
+            renderAdminTestiList();
+            renderAdminPortfolioList();
         }
+
+        ['primary', 'header', 'footer', 'discount', 'icon', 'text', 'social-icon'].forEach(key => {
+            const picker = document.getElementById(`color-${key}`);
+            const textInput = document.getElementById(`color-${key}-text` + (key === 'text' ? '-val' : (key === 'primary' || key === 'header' || key === 'footer' || key === 'discount' || key === 'icon' || key === 'social-icon' ? '' : '')));
+            if(picker && textInput) {
+                picker.addEventListener('input', (e) => { textInput.value = e.target.value; });
+                textInput.addEventListener('input', (e) => { if(e.target.value.startsWith('#')) picker.value = e.target.value; });
+            }
+        });
 
         function renderAdminProductsTable() {
             const tbody = document.getElementById('admin-products-table-body');
@@ -2164,18 +2190,14 @@
                 const finalPrice = Math.round(p.price * (100 - p.disc) / 100);
                 html += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4">
-                            <img src="${p.cover}" class="w-12 h-10 object-cover rounded-lg shadow-sm">
-                        </td>
+                        <td class="p-4"><img src="${p.cover}" class="w-12 h-9 object-cover rounded-md shadow-sm"></td>
                         <td class="p-4 font-bold text-slate-900 max-w-xs truncate">${p.title}</td>
-                        <td class="p-4 text-slate-600">${p.mainCat} / <span class="text-primary font-semibold">${p.format}</span></td>
-                        <td class="p-4 font-extrabold text-primary">Rp${finalPrice.toLocaleString('id-ID')}</td>
-                        <td class="p-4 font-semibold">${p.sold}</td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <button onclick="openProductEditor('${p.id}')" class="p-2 rounded-lg bg-blue-50 text-primary hover:bg-primary hover:text-white transition-all"><i class="fa-solid fa-pen text-xs"></i></button>
-                                <button onclick="deleteProduct('${p.id}')" class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"><i class="fa-solid fa-trash text-xs"></i></button>
-                            </div>
+                        <td class="p-4 text-slate-600"><span class="font-semibold">${p.mainCat}</span> / <span class="text-primary">${p.format}</span></td>
+                        <td class="p-4 font-bold text-slate-900">Rp${finalPrice.toLocaleString('id-ID')} ${p.disc > 0 ? `<span class="text-[10px] text-red-500 font-bold">(${p.disc}%)</span>` : ''}</td>
+                        <td class="p-4 text-slate-600">${p.sold}</td>
+                        <td class="p-4 text-center space-x-2">
+                            <button onclick="openProductEditor('${p.id}')" class="px-3 py-1.5 bg-blue-50 text-primary hover:bg-primary hover:text-white rounded-md font-bold text-xs transition-all">Edit</button>
+                            <button onclick="deleteProduct('${p.id}')" class="px-3 py-1.5 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white rounded-md font-bold text-xs transition-all">Hapus</button>
                         </td>
                     </tr>
                 `;
@@ -2183,12 +2205,23 @@
             tbody.innerHTML = html;
         }
 
+        function deleteProduct(id) {
+            appData.products = appData.products.filter(item => item.id !== id);
+            saveDataToLocal();
+            renderAdminProductsTable();
+            renderProducts();
+            populateMainCategoryDropdown();
+            showAlert('Terhapus', 'Produk berhasil dihapus.');
+        }
+
         function openProductEditor(id) {
-            document.getElementById('product-editor-modal').classList.remove('hidden');
+            const modal = document.getElementById('product-editor-modal');
+            modal.classList.remove('hidden');
+
             if(id) {
                 const p = appData.products.find(item => item.id === id);
                 if(!p) return;
-                document.getElementById('product-editor-title').innerText = "Edit Produk Dokumen";
+                document.getElementById('product-editor-title').innerText = 'Edit Produk File';
                 document.getElementById('edit-prod-id').value = p.id;
                 document.getElementById('edit-prod-title').value = p.title;
                 document.getElementById('edit-prod-format').value = p.format;
@@ -2201,19 +2234,19 @@
                 document.getElementById('edit-prod-sold').value = p.sold;
                 document.getElementById('edit-prod-cover').value = p.cover;
                 document.getElementById('edit-prod-previews').value = p.previews ? p.previews.join('\n') : '';
-                document.getElementById('editor-content-editable').innerHTML = p.richtext || '<p>Tulis deskripsi lengkap...</p>';
+                document.getElementById('editor-content-editable').innerHTML = p.richtext || '';
             } else {
-                document.getElementById('product-editor-title').innerText = "Tambah Produk Baru";
+                document.getElementById('product-editor-title').innerText = 'Tambah Produk File Baru';
                 document.getElementById('edit-prod-id').value = '';
                 document.getElementById('edit-prod-title').value = '';
                 document.getElementById('edit-prod-format').value = '.docx';
                 document.getElementById('edit-prod-maincat').value = 'Modul Ajar';
                 document.getElementById('edit-prod-subcat').value = 'Umum';
                 document.getElementById('edit-prod-type').value = 'Kelas 1 SD';
-                document.getElementById('edit-prod-tags').value = '';
-                document.getElementById('edit-prod-price').value = 45000;
-                document.getElementById('edit-prod-disc').value = 25;
-                document.getElementById('edit-prod-sold').value = 10;
+                document.getElementById('edit-prod-tags').value = 'modul, kurikulum merdeka';
+                document.getElementById('edit-prod-price').value = '40000';
+                document.getElementById('edit-prod-disc').value = '25';
+                document.getElementById('edit-prod-sold').value = '10';
                 document.getElementById('edit-prod-cover').value = 'https://placehold.co/600x400/2563eb/ffffff?text=New+Product';
                 document.getElementById('edit-prod-previews').value = '';
                 document.getElementById('editor-content-editable').innerHTML = '<p>Tulis deskripsi lengkap produk di sini...</p>';
@@ -2241,7 +2274,7 @@
             const richtext = document.getElementById('editor-content-editable').innerHTML;
 
             if(!title) {
-                showAlert('Error', 'Judul produk wajib diisi.');
+                showAlert('Validasi Gagal', 'Judul produk wajib diisi.');
                 return;
             }
 
@@ -2252,56 +2285,24 @@
                 }
             } else {
                 const newId = 'p_' + Date.now();
-                appData.products.unshift({ id: newId, title, format, mainCat, subCat, type, tags, price, disc, sold, cover, previews, richtext });
+                appData.products.push({ id: newId, title, format, mainCat, subCat, type, tags, price, disc, sold, cover, previews, richtext });
             }
 
             saveDataToLocal();
             document.getElementById('product-editor-modal').classList.add('hidden');
-            populateAdminUI();
-            showAlert('Berhasil', 'Produk berhasil disimpan.');
+            renderAdminProductsTable();
+            renderProducts();
+            showAlert('Berhasil!', 'Data produk berhasil disimpan.');
         }
 
-        function deleteProduct(id) {
-            if(confirm('Yakin ingin menghapus produk ini?')) {
-                appData.products = appData.products.filter(item => item.id !== id);
-                saveDataToLocal();
-                populateAdminUI();
-                showAlert('Terhapus', 'Produk berhasil dihapus.');
-            }
-        }
-
-        function uploadImageBase64(inputEl, targetInputId) {
-            if(inputEl.files && inputEl.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById(targetInputId).value = e.target.result;
-                };
-                reader.readAsDataURL(inputEl.files[0]);
-            }
-        }
-
-        function uploadMultiImagesBase64(inputEl) {
-            if(inputEl.files && inputEl.files.length > 0) {
-                let currentVal = document.getElementById('edit-prod-previews').value;
-                Array.from(inputEl.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        currentVal += (currentVal ? '\n' : '') + e.target.result;
-                        document.getElementById('edit-prod-previews').value = currentVal;
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
-
-        function renderAdminAnnouncements() {
+        function renderAdminAnnouncementsList() {
             const container = document.getElementById('admin-announcements-list');
             let html = '';
             appData.announcements.forEach((ann, idx) => {
                 html += `
                     <div class="flex gap-2">
-                        <input type="text" id="admin-ann-${idx}" value="${ann}" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
-                        <button onclick="removeAnnouncementRow(${idx})" class="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition-all"><i class="fa-solid fa-trash"></i></button>
+                        <input type="text" value="${ann}" onchange="appData.announcements[${idx}] = this.value" class="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                        <button onclick="appData.announcements.splice(${idx}, 1); renderAdminAnnouncementsList();" class="bg-red-50 text-red-600 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-600 hover:text-white transition-all"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
             });
@@ -2310,28 +2311,37 @@
 
         function addAnnouncementRow() {
             if(!appData.announcements) appData.announcements = [];
-            appData.announcements.push("Pengumuman baru...");
-            renderAdminAnnouncements();
+            appData.announcements.push("Pengumuman baru toko...");
+            renderAdminAnnouncementsList();
         }
 
-        function removeAnnouncementRow(idx) {
-            appData.announcements.splice(idx, 1);
-            renderAdminAnnouncements();
-        }
-
-        function renderAdminBanners() {
+        function renderAdminBannersList() {
             const container = document.getElementById('admin-banners-list');
             let html = '';
             appData.banners.forEach((b, idx) => {
                 html += `
                     <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h5 class="text-xs font-bold text-slate-800">Banner #${idx+1}</h5>
-                            <button onclick="removeBannerRow(${idx})" class="text-xs text-red-600 font-bold hover:underline"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            <h5 class="text-xs font-extrabold text-slate-900">Banner #${idx + 1}</h5>
+                            <button onclick="appData.banners.splice(${idx}, 1); renderAdminBannersList();" class="text-red-600 hover:text-red-700 text-xs font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input type="text" id="admin-banner-img-${idx}" value="${b.img}" placeholder="URL Gambar Banner" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold">
-                            <input type="text" id="admin-banner-link-${idx}" value="${b.link || ''}" placeholder="Link Tujuan" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Judul Banner</label>
+                                <input type="text" value="${b.title || ''}" onchange="appData.banners[${idx}].title = this.value" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Link Tujuan</label>
+                                <input type="text" value="${b.link || ''}" onchange="appData.banners[${idx}].link = this.value" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">URL Gambar Banner</label>
+                                <input type="text" value="${b.img || ''}" onchange="appData.banners[${idx}].img = this.value" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Deskripsi Banner</label>
+                                <input type="text" value="${b.desc || ''}" onchange="appData.banners[${idx}].desc = this.value" class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            </div>
                         </div>
                     </div>
                 `;
@@ -2341,27 +2351,24 @@
 
         function addBannerRow() {
             if(!appData.banners) appData.banners = [];
-            appData.banners.push({ title: "", desc: "", img: "https://placehold.co/800x400/2563eb/ffffff?text=Banner", link: "#" });
-            renderAdminBanners();
+            appData.banners.push({ title: "Promo Baru", desc: "Deskripsi promo...", img: "https://placehold.co/800x400/2563eb/ffffff?text=Banner+Baru", link: "#catalog-section" });
+            renderAdminBannersList();
         }
 
-        function removeBannerRow(idx) {
-            appData.banners.splice(idx, 1);
-            renderAdminBanners();
-        }
-
-        function renderAdminFaq() {
+        function renderAdminFaqList() {
             const container = document.getElementById('admin-faq-list');
             let html = '';
-            appData.faqs.forEach((f, idx) => {
+            appData.faqs.forEach((faq, idx) => {
                 html += `
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h5 class="text-xs font-bold text-slate-800">FAQ #${idx+1}</h5>
-                            <button onclick="removeFaqRow(${idx})" class="text-xs text-red-600 font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            <span class="text-xs font-extrabold text-slate-900">FAQ #${idx + 1}</span>
+                            <button onclick="appData.faqs.splice(${idx}, 1); renderAdminFaqList();" class="text-red-600 text-xs font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
                         </div>
-                        <input type="text" id="admin-faq-q-${idx}" value="${f.q}" class="w-full bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="Pertanyaan">
-                        <textarea id="admin-faq-a-${idx}" rows="2" class="w-full bg-white border rounded-lg px-3 py-2 text-xs" placeholder="Jawaban">${f.a}</textarea>
+                        <div>
+                            <input type="text" value="${faq.q}" onchange="appData.faqs[${idx}].q = this.value" placeholder="Pertanyaan..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold mb-2">
+                            <textarea rows="2" onchange="appData.faqs[${idx}].a = this.value" placeholder="Jawaban..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium">${faq.a}</textarea>
+                        </div>
                     </div>
                 `;
             });
@@ -2371,30 +2378,25 @@
         function addFaqRow() {
             if(!appData.faqs) appData.faqs = [];
             appData.faqs.push({ q: "Pertanyaan baru?", a: "Jawaban pertanyaan..." });
-            renderAdminFaq();
+            renderAdminFaqList();
         }
 
-        function removeFaqRow(idx) {
-            appData.faqs.splice(idx, 1);
-            renderAdminFaq();
-        }
-
-        function renderAdminTesti() {
+        function renderAdminTestiList() {
             const container = document.getElementById('admin-testi-list');
             let html = '';
             appData.testimonials.forEach((t, idx) => {
                 html += `
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h5 class="text-xs font-bold text-slate-800">Testimoni #${idx+1}</h5>
-                            <button onclick="removeTestiRow(${idx})" class="text-xs text-red-600 font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            <span class="text-xs font-extrabold text-slate-900">Testimoni #${idx + 1}</span>
+                            <button onclick="appData.testimonials.splice(${idx}, 1); renderAdminTestiList();" class="text-red-600 text-xs font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            <input type="text" id="admin-testi-name-${idx}" value="${t.name}" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="Nama">
-                            <input type="text" id="admin-testi-role-${idx}" value="${t.role}" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="Profesi">
-                            <input type="number" id="admin-testi-rating-${idx}" value="${t.rating}" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="Rating">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <input type="text" value="${t.name}" onchange="appData.testimonials[${idx}].name = this.value" placeholder="Nama..." class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            <input type="text" value="${t.role}" onchange="appData.testimonials[${idx}].role = this.value" placeholder="Profesi..." class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            <input type="text" value="${t.avatar}" onchange="appData.testimonials[${idx}].avatar = this.value" placeholder="URL Avatar..." class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
                         </div>
-                        <textarea id="admin-testi-text-${idx}" rows="2" class="w-full bg-white border rounded-lg px-3 py-2 text-xs" placeholder="Ulasan">${t.text}</textarea>
+                        <textarea rows="2" onchange="appData.testimonials[${idx}].text = this.value" placeholder="Ulasan testimoni..." class="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium">${t.text}</textarea>
                     </div>
                 `;
             });
@@ -2403,28 +2405,23 @@
 
         function addTestiRow() {
             if(!appData.testimonials) appData.testimonials = [];
-            appData.testimonials.push({ name: "Nama Klien", role: "Profesi", rating: 5, text: "Ulasan sangat baik.", avatar: "https://placehold.co/100x100/2563eb/ffffff?text=User" });
-            renderAdminTesti();
+            appData.testimonials.push({ name: "Nama Klien", role: "Profesi", rating: 5, text: "Ulasan kepuasan...", avatar: "https://placehold.co/100x100/2563eb/ffffff?text=K" });
+            renderAdminTestiList();
         }
 
-        function removeTestiRow(idx) {
-            appData.testimonials.splice(idx, 1);
-            renderAdminTesti();
-        }
-
-        function renderAdminPortfolio() {
+        function renderAdminPortfolioList() {
             const container = document.getElementById('admin-portfolio-list');
             let html = '';
-            appData.portfolio.forEach((item, idx) => {
+            appData.portfolio.forEach((p, idx) => {
                 html += `
-                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2.5">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h5 class="text-xs font-bold text-slate-800">Galeri #${idx+1}</h5>
-                            <button onclick="removePortfolioRow(${idx})" class="text-xs text-red-600 font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
+                            <span class="text-xs font-extrabold text-slate-900">Galeri #${idx + 1}</span>
+                            <button onclick="appData.portfolio.splice(${idx}, 1); renderAdminPortfolioList();" class="text-red-600 text-xs font-bold"><i class="fa-solid fa-trash"></i> Hapus</button>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                            <input type="text" id="admin-port-img-${idx}" value="${item.img}" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="URL Gambar">
-                            <input type="text" id="admin-port-cap-${idx}" value="${item.caption}" class="bg-white border rounded-lg px-3 py-2 text-xs font-semibold" placeholder="Keterangan">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" value="${p.img}" onchange="appData.portfolio[${idx}].img = this.value" placeholder="URL Gambar Bukti..." class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
+                            <input type="text" value="${p.caption}" onchange="appData.portfolio[${idx}].caption = this.value" placeholder="Keterangan..." class="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold">
                         </div>
                     </div>
                 `;
@@ -2434,129 +2431,88 @@
 
         function addPortfolioRow() {
             if(!appData.portfolio) appData.portfolio = [];
-            appData.portfolio.push({ img: "https://placehold.co/500x350/2563eb/ffffff?text=Bukti", caption: "Keterangan Bukti Transaksi" });
-            renderAdminPortfolio();
-        }
-
-        function removePortfolioRow(idx) {
-            appData.portfolio.splice(idx, 1);
-            renderAdminPortfolio();
-        }
-
-        function applyThemeFromAdmin() {
-            appData.storeName = document.getElementById('set-store-name').value;
-            appData.storeSubtitle = document.getElementById('set-store-subtitle').value;
-            appData.waNumber = document.getElementById('set-wa-number').value;
-            appData.headerLogo = document.getElementById('set-header-logo').value;
-            appData.footerLogo = document.getElementById('set-footer-logo').value;
-            appData.heroBg = document.getElementById('set-hero-bg').value;
-            appData.socialIg = document.getElementById('set-social-ig').value;
-            appData.socialTiktok = document.getElementById('set-social-tiktok').value;
-            appData.socialFb = document.getElementById('set-social-fb').value;
-            appData.socialWa = document.getElementById('set-social-wa').value;
-
-            const newAdminUser = document.getElementById('set-admin-user').value.trim();
-            const newAdminPass = document.getElementById('set-admin-pass').value.trim();
-            if(newAdminUser) appData.adminUser = newAdminUser;
-            if(newAdminPass) appData.adminPass = newAdminPass;
-
-            appData.footerDesc = document.getElementById('footer-custom-desc').value;
-            appData.footerCopy = document.getElementById('footer-custom-copy').value;
-
-            appData.theme = {
-                primary: document.getElementById('color-primary').value,
-                header: document.getElementById('color-header').value,
-                footer: document.getElementById('color-footer').value,
-                footerText: "#94a3b8",
-                discount: document.getElementById('color-discount').value,
-                icon: document.getElementById('color-icon').value,
-                text: document.getElementById('color-text').value,
-                socialIcon: document.getElementById('color-social-icon').value
-            };
-
-            saveDataToLocal();
-            applyTheme();
-            showAlert('Berhasil', 'Pengaturan berhasil diterapkan.');
+            appData.portfolio.push({ img: "https://placehold.co/500x350/2563eb/ffffff?text=Bukti+Baru", caption: "Keterangan bukti transaksi" });
+            renderAdminPortfolioList();
         }
 
         function saveAllAdminData() {
-            // Save announcements
-            if(appData.announcements) {
-                appData.announcements = appData.announcements.map((_, idx) => {
-                    const el = document.getElementById(`admin-ann-${idx}`);
-                    return el ? el.value : '';
-                }).filter(Boolean);
-            }
+            appData.adminUser = document.getElementById('set-admin-user').value.trim() || 'admin';
+            const newPass = document.getElementById('set-admin-pass').value.trim();
+            if(newPass) appData.adminPass = newPass;
 
-            // Save banners
-            if(appData.banners) {
-                appData.banners = appData.banners.map((b, idx) => {
-                    const imgEl = document.getElementById(`admin-banner-img-${idx}`);
-                    const linkEl = document.getElementById(`admin-banner-link-${idx}`);
-                    return {
-                        title: b.title || "",
-                        desc: b.desc || "",
-                        img: imgEl ? imgEl.value : b.img,
-                        link: linkEl ? linkEl.value : b.link
-                    };
-                });
-            }
+            appData.storeName = document.getElementById('set-store-name').value.trim() || 'SS File';
+            appData.storeSubtitle = document.getElementById('set-store-subtitle').value.trim() || '';
+            appData.headerLogo = document.getElementById('set-header-logo').value.trim();
+            appData.footerLogo = document.getElementById('set-footer-logo').value.trim();
+            appData.heroBg = document.getElementById('set-hero-bg').value.trim();
+            appData.waNumber = document.getElementById('set-wa-number').value.trim();
+            appData.socialIg = document.getElementById('set-social-ig').value.trim();
+            appData.socialTiktok = document.getElementById('set-social-tiktok').value.trim();
+            appData.socialFb = document.getElementById('set-social-fb').value.trim();
+            appData.socialWa = document.getElementById('set-social-wa').value.trim();
 
-            // Save FAQs
-            if(appData.faqs) {
-                appData.faqs = appData.faqs.map((f, idx) => {
-                    const qEl = document.getElementById(`admin-faq-q-${idx}`);
-                    const aEl = document.getElementById(`admin-faq-a-${idx}`);
-                    return {
-                        q: qEl ? qEl.value : f.q,
-                        a: aEl ? aEl.value : f.a
-                    };
-                });
-            }
+            if(!appData.about) appData.about = {};
+            appData.about.img = document.getElementById('admin-about-img').value.trim();
+            appData.about.title = document.getElementById('admin-about-title').value.trim();
+            appData.about.desc = document.getElementById('admin-about-desc').value.trim();
 
-            // Save Testimonials
-            if(appData.testimonials) {
-                appData.testimonials = appData.testimonials.map((t, idx) => {
-                    const nameEl = document.getElementById(`admin-testi-name-${idx}`);
-                    const roleEl = document.getElementById(`admin-testi-role-${idx}`);
-                    const ratingEl = document.getElementById(`admin-testi-rating-${idx}`);
-                    const textEl = document.getElementById(`admin-testi-text-${idx}`);
-                    return {
-                        name: nameEl ? nameEl.value : t.name,
-                        role: roleEl ? roleEl.value : t.role,
-                        rating: ratingEl ? parseInt(ratingEl.value) || 5 : t.rating,
-                        text: textEl ? textEl.value : t.text,
-                        avatar: t.avatar
-                    };
-                });
-            }
+            saveDataToLocal();
+            applyTheme();
+            showAlert('Berhasil Disimpan!', 'Semua perubahan pengaturan toko dan admin berhasil disimpan.');
+        }
 
-            // Save Portfolio
-            if(appData.portfolio) {
-                appData.portfolio = appData.portfolio.map((item, idx) => {
-                    const imgEl = document.getElementById(`admin-port-img-${idx}`);
-                    const capEl = document.getElementById(`admin-port-cap-${idx}`);
-                    return {
-                        img: imgEl ? imgEl.value : item.img,
-                        caption: capEl ? capEl.value : item.caption
-                    };
-                });
-            }
+        function applyThemeFromAdmin() {
+            const primary = document.getElementById('color-primary-text').value;
+            const header = document.getElementById('color-header-text').value;
+            const footer = document.getElementById('color-footer-text').value;
+            const discount = document.getElementById('color-discount-text').value;
+            const icon = document.getElementById('color-icon-text').value;
+            const text = document.getElementById('color-text-val').value;
+            const socialIcon = document.getElementById('color-social-icon-text').value;
 
-            // Save About
-            if(appData.about) {
-                appData.about.img = document.getElementById('admin-about-img').value;
-                appData.about.title = document.getElementById('admin-about-title').value;
-                appData.about.desc = document.getElementById('admin-about-desc').value;
-            }
+            appData.theme = { primary, header, footer, discount, icon, text, socialIcon };
+            appData.footerDesc = document.getElementById('footer-custom-desc').value.trim();
+            appData.footerCopy = document.getElementById('footer-custom-copy').value.trim();
 
-            applyThemeFromAdmin();
+            saveDataToLocal();
+            applyTheme();
+            renderStorefront();
+            showAlert('Tema Diterapkan!', 'Warna tema dan footer berhasil diperbarui secara instan.');
+        }
+
+        function uploadImageBase64(fileInput, targetInputId) {
+            const file = fileInput.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(targetInputId).value = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function uploadMultiImagesBase64(fileInput) {
+            const files = fileInput.files;
+            if(!files || files.length === 0) return;
+            const textarea = document.getElementById('edit-prod-previews');
+            let currentVals = textarea.value.trim() ? textarea.value.trim() + '\n' : '';
+            
+            let loadedCount = 0;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentVals += e.target.result + '\n';
+                    loadedCount++;
+                    if(loadedCount === files.length) {
+                        textarea.value = currentVals.trim();
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
         }
 
         function downloadCompleteHtmlFile() {
-            saveAllAdminData();
-            const htmlContent = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -2565,7 +2521,22 @@
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            showAlert('Berhasil Diunduh', 'File index.html berhasil diunduh dengan seluruh data terbaru.');
+            showAlert('Download Berhasil', 'File index.html berhasil diunduh dengan seluruh data terbaru.');
+        }
+
+        function openLightbox(src) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-modal').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox-modal').classList.add('hidden');
+        }
+
+        function showAlert(title, message) {
+            document.getElementById('custom-alert-title').innerText = title;
+            document.getElementById('custom-alert-message').innerText = message;
+            document.getElementById('custom-alert-modal').classList.remove('hidden');
         }
     </script>
 </body>
