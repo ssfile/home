@@ -32,7 +32,7 @@ import {
   Table as TableIcon, Highlighter, Undo2, Redo2, RemoveFormatting,
   Check, AlertTriangle, Info, Instagram, Youtube, Globe, Mail,
   MapPin, Phone, RefreshCw, KeyRound, History, MoveUp, MoveDown,
-  Maximize2, Sparkle, Award, Zap, FileCode, Server, Terminal, Cloud, Tag
+  Maximize2, Sparkle, Award, Zap, FileCode, Server, Terminal, Cloud
 } from 'lucide-react';
 
 // ============================================================================
@@ -255,18 +255,6 @@ const createTemplateSvg = (title, subtitle, accentColor = '#2563EB', secondaryCo
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 };
 
-/** Mendapatkan daftar tag produk (dengan fallback otomatis dari kategori jika kosong) */
-const getProductTags = (product, categories = []) => {
-  if (!product) return [];
-  if (Array.isArray(product.tags) && product.tags.length > 0) {
-    return product.tags.map((t) => String(t).trim()).filter(Boolean);
-  }
-  const c1 = categories.find((c) => c.id === product.catLevel1)?.name;
-  const c2 = categories.find((c) => c.id === product.catLevel2)?.name;
-  const c3 = categories.find((c) => c.id === product.catLevel3)?.name;
-  return [c3, c2, c1, product.badge].filter(Boolean);
-};
-
 // ============================================================================
 // 3. DEFAULT SEED DATA (UNTUK INISIALISASI AWAL DATABASE)
 // ============================================================================
@@ -300,7 +288,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-dokumen',
     catLevel2: 'cat-ms-office',
     catLevel3: 'cat-excel',
-    tags: ['Excel', 'Keuangan', 'Arus Kas', 'UMKM', 'Laporan Laba Rugi'],
     shortDesc: 'Sistem pembukuan otomatis lengkap dengan grafik laba rugi, arus kas bulanan, dan rekap pajak UMKM.',
     description: `<h2>Kelola Keuangan Bisnis Lebih Rapi Tanpa Ribet Rumus Manual</h2><p><strong>Dashboard Keuangan & Arus Kas Bisnis Pro</strong> dirancang khusus untuk pemilik UMKM, freelancer, maupun staf finance yang membutuhkan laporan keuangan akurat secara instan.</p><h3>Fitur Unggulan di Dalam File:</h3><ul><li><strong>Dashboard Visual Interaktif:</strong> Grafik pemasukan vs pengeluaran otomatis berubah sesuai bulan yang dipilih.</li><li><strong>Laporan Laba Rugi Otomatis:</strong> Rekapitulasi pendapatan bersih dan margin keuntungan real-time.</li><li><strong>Buku Kas Harian & Piutang:</strong> Pencatatan transaksi masuk/keluar dengan status lunas/belum lunas.</li><li><strong>Panduan Penggunaan PDF:</strong> Dilengkapi petunjuk langkah demi langkah dalam Bahasa Indonesia.</li></ul>`,
     price: 149000,
@@ -330,7 +317,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-dokumen',
     catLevel2: 'cat-ms-office',
     catLevel3: 'cat-ppt',
-    tags: ['PowerPoint', 'Pitch Deck', 'Presentasi', 'Bisnis', 'Startup'],
     shortDesc: 'Koleksi slide presentasi minimalis ala startup & agensi untuk proposal bisnis, laporan kerja, dan pitch deck.',
     description: `<h2>Tampil Meyakinkan di Depan Klien & Investor</h2><p>Hemat puluhan jam mendesain slide dari nol. Paket ini berisi <strong>120+ layout slide unik</strong> dengan tipografi modern, infografis vektor, dan palet warna yang dapat diganti dalam satu klik.</p><h3>Apa Saja yang Anda Dapatkan?</h3><ul><li>120+ Slide Master Unik (Cover, Visi Misi, Analisis SWOT, Timeline, Mockup Device, Tabel Harga).</li><li>Rasio layar lebar <strong>16:9 Full HD</strong>.</li><li>100% Elemen vektor dapat diubah warna dan ukurannya tanpa pecah.</li><li>Bonus 500+ Ikon Bisnis Vektor siap pakai.</li></ul>`,
     price: 119000,
@@ -359,7 +345,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-dokumen',
     catLevel2: 'cat-ms-office',
     catLevel3: 'cat-word',
-    tags: ['Microsoft Word', 'SOP Perusahaan', 'HRD', 'Kontrak Kerja', 'KPI'],
     shortDesc: 'Kumpulan standar operasional prosedur (SOP), kontrak kerja PKWT/PKWTT, form KPI, dan surat resmi HRD.',
     description: `<h2>Standarisasi Operasional Perusahaan Anda Hari Ini</h2><p>Disusun berdasarkan praktik terbaik manajemen SDM di Indonesia. Seluruh dokumen dalam format <strong>Microsoft Word (.docx)</strong> yang sangat mudah disesuaikan dengan nama dan logo perusahaan Anda.</p><h3>Daftar Isi Bundel:</h3><ol><li>Template Kontrak Kerja Karyawan (PKWT, PKWTT, Freelance, Magang).</li><li>SOP Rekrutmen, Onboarding, Cuti, Lembur, dan Evaluasi Kinerja (KPI).</li><li>Surat Peringatan (SP 1, SP 2, SP 3), Surat Pengangkatan & Paklaring.</li><li>Form Penilaian Karyawan & Struktur Skala Upah.</li></ol>`,
     price: 175000,
@@ -388,7 +373,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-desain',
     catLevel2: 'cat-canva',
     catLevel3: 'cat-canva-bisnis',
-    tags: ['Canva', 'Instagram', 'UMKM', 'Social Media', 'Branding'],
     shortDesc: 'Tingkatkan engagement & penjualan produk dengan 100+ template feed carousel, story promo, dan highlight.',
     description: `<h2>Bikin Feed Instagram Bisnis Terlihat Seperti Dikelola Agensi Profesional</h2><p>Tidak perlu jago desain grafis! Cukup klik link template, ganti foto produk dan teks Anda di <strong>Canva (Gratis maupun Pro)</strong>, lalu langsung posting.</p><ul><li>60 Template Feed Instagram (4:5 Portrait Modern).</li><li>40 Template Instagram Story Promo, Testimoni & Kuis Interaktif.</li><li>Bonus 25 Cover Highlight Ikon Minimalis.</li></ul>`,
     price: 95000,
@@ -416,7 +400,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-dokumen',
     catLevel2: 'cat-pdf',
     catLevel3: 'cat-pendidikan',
-    tags: ['Kurikulum Merdeka', 'Modul Ajar', 'Administrasi Guru', 'Pendidikan', 'PDF'],
     shortDesc: 'Paket lengkap Modul Ajar, ATP, Prota, Promes, Jurnal Mengajar, dan Lembar Asesmen siap cetak & edit.',
     description: `<h2>Solusi Praktis Administrasi Bapak/Ibu Guru</h2><p>Memudahkan penyusunan perangkat pembelajaran sesuai struktur <strong>Kurikulum Merdeka</strong> terbaru. Tersedia dalam file master yang rapi dan siap dicetak.</p><ul><li>Format Modul Ajar & Alur Tujuan Pembelajaran (ATP).</li><li>Program Tahunan (Prota) & Program Semester (Promes).</li><li>Rubrik Penilaian Formatif & Sumatif serta Jurnal Harian Kelas.</li></ul>`,
     price: 85000,
@@ -444,7 +427,6 @@ const INITIAL_PRODUCTS = [
     catLevel1: 'cat-dokumen',
     catLevel2: 'cat-pdf',
     catLevel3: 'cat-admin',
-    tags: ['Invoice', 'Kwitansi', 'Administrasi', 'Excel', 'PDF'],
     shortDesc: 'Buat invoice profesional dengan nomor otomatis, fungsi terbilang Rupiah, dan ekspor langsung ke PDF.',
     description: `<h2>Kirim Tagihan Klien Lebih Cepat & Terlihat Kredibel</h2><p>Dilengkapi database pelanggan dan katalog barang/jasa. Cukup pilih kode item, total harga dan teks <strong>Terbilang Rupiah</strong> akan terisi otomatis.</p><ul><li>Desain bersih siap cetak ukuran A4 maupun ekspor PDF.</li><li>Database penyimpanan riwayat invoice terkirim.</li><li>Mendukung perhitungan PPN & Diskon per item.</li></ul>`,
     price: 55000,
@@ -1256,7 +1238,6 @@ const AdminDashboard = ({
     catLevel1: categories.find((c) => c.level === 1)?.id || '',
     catLevel2: categories.find((c) => c.level === 2)?.id || '',
     catLevel3: categories.find((c) => c.level === 3)?.id || '',
-    tags: '',
     shortDesc: '',
     description: '<p>Tulis deskripsi lengkap produk digital Anda di sini...</p>',
     price: 75000,
@@ -1291,7 +1272,6 @@ const AdminDashboard = ({
     setProdForm({
       ...defaultProductForm,
       ...prod,
-      tags: Array.isArray(prod.tags) ? prod.tags.join(', ') : (prod.tags || ''),
       images: prod.images?.length ? prod.images : [prod.thumbnail]
     });
     setProductModalOpen(true);
@@ -1385,16 +1365,9 @@ const AdminDashboard = ({
     }
     try {
       const finalSlug = prodForm.slug.trim() ? generateSlug(prodForm.slug) : generateSlug(prodForm.name);
-      const parsedTags = Array.isArray(prodForm.tags)
-        ? prodForm.tags.map((t) => String(t).trim()).filter(Boolean)
-        : String(prodForm.tags || '')
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
       const payload = {
         ...prodForm,
         slug: finalSlug,
-        tags: Array.from(new Set(parsedTags)),
         price: Number(prodForm.price) || 0,
         discountPrice: Number(prodForm.discountPrice) || 0,
         order: Number(prodForm.order) || 1,
@@ -2379,38 +2352,6 @@ const AdminDashboard = ({
                       />
                     </div>
 
-                    {/* Tag Produk */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                        Tag Produk (Pisahkan dengan koma)
-                      </label>
-                      <input
-                        type="text"
-                        value={Array.isArray(prodForm.tags) ? prodForm.tags.join(', ') : (prodForm.tags || '')}
-                        onChange={(e) => setProdForm({ ...prodForm, tags: e.target.value })}
-                        placeholder="Contoh: Excel, Keuangan, UMKM, Laporan Laba Rugi"
-                        className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:border-blue-500 focus:outline-none"
-                      />
-                      {String(prodForm.tags || '').trim() && (
-                        <div className="flex flex-wrap gap-1.5 mt-2">
-                          {(Array.isArray(prodForm.tags)
-                            ? prodForm.tags
-                            : String(prodForm.tags).split(',')
-                          )
-                            .map((t) => t.trim())
-                            .filter(Boolean)
-                            .map((t, idx) => (
-                              <span
-                                key={idx}
-                                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-semibold border border-blue-100"
-                              >
-                                #{t}
-                              </span>
-                            ))}
-                        </div>
-                      )}
-                    </div>
-
                     {/* Word-Like Rich Text Editor */}
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -3288,7 +3229,7 @@ const AdminDashboard = ({
                               setSettingsForm((prev) => ({ ...prev, ...preset.colors }));
                               addToast(`Preset "${preset.name}" diterapkan`);
                             }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 text-xs font-semibold text-slate-700 shadow-sm transition-all"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 text-xs font-semibold text-slate-700 shadow-xs transition-all"
                           >
                             <span className="w-3.5 h-3.5 rounded-full border border-black/10" style={{ backgroundColor: preset.swatch }} />
                             {preset.name}
@@ -4078,7 +4019,6 @@ export default function App() {
   const [filterCat1, setFilterCat1] = useState('');
   const [filterCat2, setFilterCat2] = useState('');
   const [filterCat3, setFilterCat3] = useState('');
-  const [filterTag, setFilterTag] = useState('');
   const [filterPriceRange, setFilterPriceRange] = useState('all'); // 'all' | 'under50' | '50to100' | 'above100'
   const [filterBadgeTag, setFilterBadgeTag] = useState('all'); // 'all' | 'latest' | 'popular' | 'discount'
   const [sortBy, setSortBy] = useState('newest'); // 'newest' | 'popular' | 'price-asc' | 'price-desc'
@@ -4555,15 +4495,7 @@ export default function App() {
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
-          (p.shortDesc || '').toLowerCase().includes(q) ||
-          getProductTags(p, categories).some((t) => t.toLowerCase().includes(q))
-      );
-    }
-
-    if (filterTag.trim()) {
-      const targetTag = filterTag.trim().toLowerCase();
-      list = list.filter((p) =>
-        getProductTags(p, categories).some((t) => t.toLowerCase() === targetTag)
+          (p.shortDesc || '').toLowerCase().includes(q)
       );
     }
 
@@ -4601,27 +4533,13 @@ export default function App() {
     }
 
     return list;
-  }, [publishedProducts, categories, searchQuery, filterTag, filterCat1, filterCat2, filterCat3, filterPriceRange, filterBadgeTag, sortBy]);
-
-  const popularTags = useMemo(() => {
-    const counts = new Map();
-    publishedProducts.forEach((p) => {
-      getProductTags(p, categories).forEach((t) => {
-        counts.set(t, (counts.get(t) || 0) + 1);
-      });
-    });
-    return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 12)
-      .map(([tagName]) => tagName);
-  }, [publishedProducts, categories]);
+  }, [publishedProducts, searchQuery, filterCat1, filterCat2, filterCat3, filterPriceRange, filterBadgeTag, sortBy]);
 
   const perPage = Number(settings.productsPerPage) || 6;
   const totalPages = Math.max(1, Math.ceil(filteredCatalogProducts.length / perPage));
   const paginatedCatalogProducts = filteredCatalogProducts.slice((catalogPage - 1) * perPage, catalogPage * perPage);
 
   const navigateToCatalogWithCategory = (cat) => {
-    setFilterTag('');
     setFilterCat1('');
     setFilterCat2('');
     setFilterCat3('');
@@ -4636,21 +4554,6 @@ export default function App() {
       setFilterCat2(cat.parentId || '');
       setFilterCat3(cat.id);
     }
-    setCatalogPage(1);
-    setCatDropdownOpen(false);
-    setMobileNavOpen(false);
-    setCurrentView('catalog');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const navigateToCatalogWithTag = (tag) => {
-    setFilterTag(tag);
-    setSearchQuery('');
-    setFilterCat1('');
-    setFilterCat2('');
-    setFilterCat3('');
-    setFilterPriceRange('all');
-    setFilterBadgeTag('all');
     setCatalogPage(1);
     setCatDropdownOpen(false);
     setMobileNavOpen(false);
@@ -4836,35 +4739,12 @@ export default function App() {
 
   return (
     <div style={themeVars} className="storefront-theme-root min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
-      {/* Custom Global Styling for Rich Text, Dynamic Theme Colors, Animations & GitHub Build Compatibility */}
+      {/* Custom Global Styling for Rich Text, Dynamic Theme Colors & Smooth Scroll */}
       <style>{`
-        html {
-          scroll-behavior: smooth;
-          overflow-x: hidden;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(6px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.25s ease-out forwards;
-        }
-        .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
+        html { scroll-behavior: smooth; }
         .storefront-theme-root {
           background-color: var(--theme-bg);
           color: var(--theme-text);
-          overflow-x: hidden;
         }
         .storefront-theme-root .storefront-navbar {
           background-color: var(--theme-navbar-bg);
@@ -4921,8 +4801,6 @@ export default function App() {
         .rich-text-content ul { list-style-type: disc; padding-left: 1.4rem; margin-bottom: 0.85rem; }
         .rich-text-content ol { list-style-type: decimal; padding-left: 1.4rem; margin-bottom: 0.85rem; }
         .rich-text-content li { margin-bottom: 0.35rem; }
-        .rich-text-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
-        .rich-text-content th, .rich-text-content td { border: 1px solid #CBD5E1; padding: 0.5rem 0.75rem; }
         .rich-text-content a { color: var(--theme-primary, #2563EB); text-decoration: underline; }
       `}</style>
 
@@ -4967,7 +4845,7 @@ export default function App() {
             </button>
             <button
               onClick={() => {
-                setFilterTag(''); setFilterCat1(''); setFilterCat2(''); setFilterCat3('');
+                setFilterCat1(''); setFilterCat2(''); setFilterCat3('');
                 setCurrentView('catalog');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
@@ -5845,12 +5723,6 @@ export default function App() {
                 <span className="text-blue-600 font-bold">{categories.find((c) => c.id === filterCat3)?.name}</span>
               </>
             )}
-            {filterTag && (
-              <>
-                <ChevronRight className="w-3.5 h-3.5" />
-                <span className="text-blue-600 font-bold">Tag: #{filterTag}</span>
-              </>
-            )}
           </nav>
 
           <div className="flex flex-col lg:flex-row gap-8">
@@ -5865,7 +5737,6 @@ export default function App() {
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setFilterTag('');
                       setFilterCat1('');
                       setFilterCat2('');
                       setFilterCat3('');
@@ -5966,64 +5837,11 @@ export default function App() {
                     ))}
                   </div>
                 </div>
-
-                {/* Tag Populer */}
-                {popularTags.length > 0 && (
-                  <div className="pt-3 border-t border-slate-100">
-                    <label className="block text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                      <Tag className="w-3.5 h-3.5 text-blue-600" />
-                      Tag Populer
-                    </label>
-                    <div className="flex flex-wrap gap-1.5">
-                      {popularTags.map((tag) => {
-                        const isActiveTag = filterTag.toLowerCase() === tag.toLowerCase();
-                        return (
-                          <button
-                            type="button"
-                            key={tag}
-                            onClick={() => {
-                              setFilterTag(isActiveTag ? '' : tag);
-                              setCatalogPage(1);
-                            }}
-                            className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
-                              isActiveTag
-                                ? 'bg-blue-600 text-white shadow-sm'
-                                : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700'
-                            }`}
-                          >
-                            #{tag}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
               </div>
             </aside>
 
             {/* Product Grid Area */}
             <div className="flex-1 space-y-6">
-              {/* Active Tag Filter Banner */}
-              {filterTag && (
-                <div className="bg-blue-50/80 border border-blue-200/80 px-4 py-3 rounded-2xl flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-xs text-slate-700">
-                    <Tag className="w-4 h-4 text-blue-600 shrink-0" />
-                    <span>
-                      Menampilkan hasil pencarian tag:{' '}
-                      <strong className="text-blue-700">#{filterTag}</strong>
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { setFilterTag(''); setCatalogPage(1); }}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-[11px] font-bold text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                    Hapus Tag
-                  </button>
-                </div>
-              )}
-
               {/* Top Sort & Quick Filter Bar */}
               <div className="bg-white p-4 rounded-2xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-2">
@@ -6077,7 +5895,6 @@ export default function App() {
                   <button
                     onClick={() => {
                       setSearchQuery('');
-                      setFilterTag('');
                       setFilterCat1('');
                       setFilterCat2('');
                       setFilterCat3('');
@@ -6158,7 +5975,6 @@ export default function App() {
               (p) => p.id !== selectedProduct.id && !sameCatProducts.some((sc) => sc.id === p.id)
             );
             const relatedProducts = [...sameCatProducts, ...fallbackProducts].slice(0, 4);
-            const productTags = getProductTags(selectedProduct, categories);
 
             return (
               <div className="space-y-12">
@@ -6306,30 +6122,6 @@ export default function App() {
                           </div>
                         </dl>
                       </div>
-
-                      {/* Tag Produk (Klik menuju pencarian tag) */}
-                      {productTags.length > 0 && (
-                        <div className="pt-4 border-t border-slate-100 space-y-2.5">
-                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
-                            <Tag className="w-3.5 h-3.5 text-blue-600" />
-                            <span>Tag Produk:</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {productTags.map((tag, idx) => (
-                              <button
-                                type="button"
-                                key={idx}
-                                onClick={() => navigateToCatalogWithTag(tag)}
-                                title={`Cari semua produk dengan tag #${tag}`}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white text-xs font-semibold transition-all duration-200 shadow-sm cursor-pointer"
-                              >
-                                <span className="opacity-70">#</span>
-                                <span>{tag}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
