@@ -3288,7 +3288,7 @@ const AdminDashboard = ({
                               setSettingsForm((prev) => ({ ...prev, ...preset.colors }));
                               addToast(`Preset "${preset.name}" diterapkan`);
                             }}
-                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 text-xs font-semibold text-slate-700 shadow-xs transition-all"
+                            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-blue-400 text-xs font-semibold text-slate-700 shadow-sm transition-all"
                           >
                             <span className="w-3.5 h-3.5 rounded-full border border-black/10" style={{ backgroundColor: preset.swatch }} />
                             {preset.name}
@@ -4836,12 +4836,35 @@ export default function App() {
 
   return (
     <div style={themeVars} className="storefront-theme-root min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-900">
-      {/* Custom Global Styling for Rich Text, Dynamic Theme Colors & Smooth Scroll */}
+      {/* Custom Global Styling for Rich Text, Dynamic Theme Colors, Animations & GitHub Build Compatibility */}
       <style>{`
-        html { scroll-behavior: smooth; }
+        html {
+          scroll-behavior: smooth;
+          overflow-x: hidden;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.25s ease-out forwards;
+        }
+        .line-clamp-1 {
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
         .storefront-theme-root {
           background-color: var(--theme-bg);
           color: var(--theme-text);
+          overflow-x: hidden;
         }
         .storefront-theme-root .storefront-navbar {
           background-color: var(--theme-navbar-bg);
@@ -4898,6 +4921,8 @@ export default function App() {
         .rich-text-content ul { list-style-type: disc; padding-left: 1.4rem; margin-bottom: 0.85rem; }
         .rich-text-content ol { list-style-type: decimal; padding-left: 1.4rem; margin-bottom: 0.85rem; }
         .rich-text-content li { margin-bottom: 0.35rem; }
+        .rich-text-content table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        .rich-text-content th, .rich-text-content td { border: 1px solid #CBD5E1; padding: 0.5rem 0.75rem; }
         .rich-text-content a { color: var(--theme-primary, #2563EB); text-decoration: underline; }
       `}</style>
 
@@ -5962,7 +5987,7 @@ export default function App() {
                             }}
                             className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors ${
                               isActiveTag
-                                ? 'bg-blue-600 text-white shadow-xs'
+                                ? 'bg-blue-600 text-white shadow-sm'
                                 : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700'
                             }`}
                           >
@@ -6296,7 +6321,7 @@ export default function App() {
                                 key={idx}
                                 onClick={() => navigateToCatalogWithTag(tag)}
                                 title={`Cari semua produk dengan tag #${tag}`}
-                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white text-xs font-semibold transition-all duration-200 shadow-2xs hover:shadow-sm cursor-pointer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-blue-600 text-slate-700 hover:text-white text-xs font-semibold transition-all duration-200 shadow-sm cursor-pointer"
                               >
                                 <span className="opacity-70">#</span>
                                 <span>{tag}</span>
